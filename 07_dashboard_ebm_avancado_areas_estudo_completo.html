@@ -1483,7 +1483,11 @@ window.addEventListener('unhandledrejection', function(event) {
 
                 // Auto-load first
                 const polos = Object.keys(App.data);
-                if (polos.length > 0) loadPolo(polos[0]);
+                const requestedPolo = new URLSearchParams(window.location.search).get('area');
+                const savedPolo = window.rfSafeStorage.getItem('revelando_area');
+                const initialPolo = [requestedPolo, savedPolo, polos[0]]
+                    .find(name => name && App.data[name]);
+                if (initialPolo) loadPolo(initialPolo);
 
                 // Hide Loader
                 setTimeout(() => {
@@ -1550,6 +1554,13 @@ window.addEventListener('unhandledrejection', function(event) {
         }
 
         function loadPolo(poloName) {
+            if (!App.data[poloName]) return;
+            window.rfSafeStorage.setItem('revelando_area', poloName);
+            document.querySelectorAll('.site-nav-links a[href*="07_dashboard_ebm_avancado_areas_estudo_"]').forEach(link => {
+                const target = new URL(link.getAttribute('href'), window.location.href);
+                target.searchParams.set('area', poloName);
+                link.href = target.href;
+            });
             document.querySelectorAll('.btn-nav').forEach(b => {
                 b.classList.toggle('active', b.dataset.polo === poloName);
             });
