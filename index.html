@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+<script>
+(function() {
+  const memory = {};
+  function getStorage() {
+    try {
+      const storage = window.localStorage;
+      const testKey = "__rf_storage_test__";
+      storage.setItem(testKey, "1");
+      storage.removeItem(testKey);
+      return storage;
+    } catch (err) {
+      return null;
+    }
+  }
+  const storage = getStorage();
+  window.rfSafeStorage = {
+    getItem(key) {
+      try {
+        return storage ? storage.getItem(key) : (Object.prototype.hasOwnProperty.call(memory, key) ? memory[key] : null);
+      } catch (err) {
+        return Object.prototype.hasOwnProperty.call(memory, key) ? memory[key] : null;
+      }
+    },
+    setItem(key, value) {
+      const text = String(value);
+      memory[key] = text;
+      try {
+        if (storage) storage.setItem(key, text);
+      } catch (err) {}
+    },
+    removeItem(key) {
+      delete memory[key];
+      try {
+        if (storage) storage.removeItem(key);
+      } catch (err) {}
+    }
+  };
+})();
+</script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preditor FCU - Projeto Revelando Favelas</title>
+  
+<style id="revelando-site-shell">
+  .site-nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.25rem 0 1.25rem 0;
+    padding: 0.65rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .site-nav-links a {
+    color: #2c3e50;
+    text-decoration: none;
+    border: 1px solid #d8dee6;
+    border-radius: 6px;
+    padding: 0.45rem 0.7rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    background: #f8fafc;
+  }
+  .site-nav-links a:hover,
+  .site-nav-links a.active {
+    color: #ffffff;
+    background: #2c3e50;
+    border-color: #2c3e50;
+  }
+  .site-footer {
+    margin: 2rem 0 0 0;
+    padding: 1.2rem 1.4rem;
+    border-top: 1px solid #e5e7eb;
+    color: #475569;
+    background: #ffffff;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+  .site-footer a {
+    color: #2563eb;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .site-footer a:hover { text-decoration: underline; }
+  .site-footer .site-footer-link { margin-top: 0.4rem; }
+  .site-lang-toggle {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+    margin: 0.8rem 0 1rem;
+  }
+  .site-lang-toggle button {
+    border: 1px solid #d8dee6;
+    background: #ffffff;
+    color: #2c3e50;
+    border-radius: 999px;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.82rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .site-lang-toggle button.active {
+    background: #2c3e50;
+    border-color: #2c3e50;
+    color: #ffffff;
+  }
+  @media (max-width: 720px) {
+    .site-nav-links { gap: 0.35rem; padding: 0.5rem; }
+    .site-nav-links a { width: 100%; text-align: center; }
+  }
+</style>
+
+  <style>
+    :root {
+      --primary: #2c3e50;
+      --accent: #2563eb;
+      --bg: #f8f9fa;
+      --border: #e5e7eb;
+      --muted: #64748b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--primary);
+      background: var(--bg);
+    }
+    .home-main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 2rem 0 0;
+    }
+    .home-hero {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.6rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 1rem;
+    }
+    .home-hero h1 {
+      margin: 0 0 0.6rem;
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      letter-spacing: 0;
+    }
+    .home-kicker {
+      margin: 0 0 0.45rem;
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .home-hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+      line-height: 1.55;
+      max-width: 840px;
+    }
+    .home-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .home-card {
+      display: block;
+      min-height: 170px;
+      padding: 1.2rem;
+      color: inherit;
+      text-decoration: none;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .home-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 6px 18px rgba(37,99,235,0.10);
+    }
+    .home-card h2 {
+      margin: 0 0 0.45rem;
+      font-size: 1.08rem;
+      color: var(--primary);
+    }
+    .home-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.94rem;
+    }
+    .institutional {
+      margin-top: 1rem;
+      padding: 1.2rem;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: #475569;
+      line-height: 1.55;
+    }
+    .institutional h2 {
+      margin: 0 0 0.45rem;
+      color: var(--primary);
+      font-size: 1.05rem;
+    }
+    .institutional p {
+      margin: 0;
+      max-width: 860px;
+    }
+  </style>
+</head>
+<body>
+  <main class="home-main">
+    <section class="home-hero">
+      
+<div class="site-lang-toggle" aria-label="Idioma">
+  <button type="button" id="btn-pt" data-lang="pt">PT</button>
+  <button type="button" id="btn-en" data-lang="en">EN</button>
+</div>
+
+      <p class="home-kicker" data-i18n="home_kicker">Projeto Revelando Favelas</p>
+      <h1 data-i18n="home_title">Preditor FCU</h1>
+      <p data-i18n="home_intro">Plataforma de apoio à leitura territorial que organiza mapas, indicadores e resultados de modelos explicáveis para identificar áreas com maior semelhança ao padrão espacial de favelas e comunidades urbanas.</p>
+    </section>
+    <nav class="site-nav-links" aria-label="Navegacao principal"><a class="active" href="index.html" data-i18n="nav_home">Início</a><a href="07_dashboard_ebm_avancado_areas_estudo_completo.html" data-i18n="nav_full">Modelo completo</a><a href="07_dashboard_ebm_avancado_areas_estudo_morfologico.html" data-i18n="nav_morph">Modelo morfológico</a><a href="08_dashboard_metricas_modelos_areas_estudo.html" data-i18n="nav_analysis">Análise dos modelos</a><a href="https://cefavela.ufabc.edu.br/revelando-favelas-arcabouco-metodologico-para-identificacao-e-caracterizacao-de-favelas/" data-i18n="nav_more" target="_blank" rel="noopener noreferrer">Saiba mais</a></nav>
+    <section class="home-grid" aria-label="Dashboards disponíveis">
+      <a class="home-card" href="07_dashboard_ebm_avancado_areas_estudo_completo.html">
+        <h2 data-i18n="home_full_title">Modelo completo</h2>
+        <p data-i18n="home_full_desc">Combina informações censitárias, morfológicas, ambientais e espectrais para apontar áreas candidatas e explicar quais variáveis influenciaram cada resultado.</p>
+      </a>
+      <a class="home-card" href="07_dashboard_ebm_avancado_areas_estudo_morfologico.html">
+        <h2 data-i18n="home_morph_title">Modelo morfológico</h2>
+        <p data-i18n="home_morph_desc">Usa características da forma urbana, ocupação, infraestrutura observável e imagens de satélite, sem utilizar variáveis censitárias do IBGE.</p>
+      </a>
+      <a class="home-card" href="08_dashboard_metricas_modelos_areas_estudo.html">
+        <h2 data-i18n="home_analysis_title">Análise dos modelos</h2>
+        <p data-i18n="home_analysis_desc">Apresenta, de forma didática, como cada modelo se comporta nas áreas de estudo e quais métricas ajudam a interpretar seus limites e potencialidades.</p>
+      </a>
+    </section>
+    <section id="saiba-mais" class="institutional">
+      <h2 data-i18n="home_how_title">Como ler os resultados</h2>
+      <p data-i18n="home_how_desc">As cores e rankings indicam prioridade de investigação, não uma classificação definitiva. Cada ponto pode ser aberto no mapa para ver a probabilidade estimada, a posição no ranking e a explicação local das variáveis que contribuíram para aquele resultado.</p>
+    </section>
+    
+<footer id="saiba-mais" class="site-footer">
+  <span data-i18n-html="footer_text"><strong>Projeto Revelando Favelas</strong>, CEFAVELA/Universidade Federal do ABC - UFABC.
+  Autores: Freitas Junior, Flávia Feitosa, Gabriel Marques e Marcos Medeiros.</span>
+  <div class="site-footer-link"><a href="https://cefavela.ufabc.edu.br/revelando-favelas-arcabouco-metodologico-para-identificacao-e-caracterizacao-de-favelas/" target="_blank" rel="noopener noreferrer" data-i18n="footer_more">Saiba mais sobre o projeto</a></div>
+</footer>
+
+  </main>
+  
+<script>
+(function() {
+  const RF_TEXTS = {"pt": {"nav_home": "Início", "nav_full": "Modelo completo", "nav_morph": "Modelo morfológico", "nav_analysis": "Análise dos modelos", "nav_more": "Saiba mais", "footer_text": "<strong>Projeto Revelando Favelas</strong>, CEFAVELA/Universidade Federal do ABC - UFABC. Autores: Freitas Junior, Flávia Feitosa, Gabriel Marques e Marcos Medeiros.", "footer_more": "Saiba mais sobre o projeto", "home_title": "Preditor FCU", "home_kicker": "Projeto Revelando Favelas", "home_intro": "Plataforma de apoio à leitura territorial que organiza mapas, indicadores e resultados de modelos explicáveis para identificar áreas com maior semelhança ao padrão espacial de favelas e comunidades urbanas.", "home_full_title": "Modelo completo", "home_full_desc": "Combina informações censitárias, morfológicas, ambientais e espectrais para apontar áreas candidatas e explicar quais variáveis influenciaram cada resultado.", "home_morph_title": "Modelo morfológico", "home_morph_desc": "Usa características da forma urbana, ocupação, infraestrutura observável e imagens de satélite, sem utilizar variáveis censitárias do IBGE.", "home_analysis_title": "Análise dos modelos", "home_analysis_desc": "Apresenta, de forma didática, como cada modelo se comporta nas áreas de estudo e quais métricas ajudam a interpretar seus limites e potencialidades.", "home_how_title": "Como ler os resultados", "home_how_desc": "As cores e rankings indicam prioridade de investigação, não uma classificação definitiva. Cada ponto pode ser aberto no mapa para ver a probabilidade estimada, a posição no ranking e a explicação local das variáveis que contribuíram para aquele resultado."}, "en": {"nav_home": "Home", "nav_full": "Full model", "nav_morph": "Morphological model", "nav_analysis": "Model analysis", "nav_more": "Learn more", "footer_text": "<strong>Revealing Favelas Project</strong>, CEFAVELA/Federal University of ABC - UFABC. Authors: Freitas Junior, Flávia Feitosa, Gabriel Marques, and Marcos Medeiros.", "footer_more": "Learn more about the project", "home_title": "FCU Predictor", "home_kicker": "Revealing Favelas Project", "home_intro": "A territorial analysis platform that organizes maps, indicators, and explainable model outputs to identify areas that are spatially similar to favelas and urban communities.", "home_full_title": "Full model", "home_full_desc": "Combines census, morphological, environmental, and spectral information to rank candidate areas and explain which variables influenced each result.", "home_morph_title": "Morphological model", "home_morph_desc": "Uses urban form, occupation, observable infrastructure, and satellite-image indicators, without IBGE census variables.", "home_analysis_title": "Model analysis", "home_analysis_desc": "Shows, in an accessible way, how each model performs across study areas and which metrics help interpret its strengths and limits.", "home_how_title": "How to read the results", "home_how_desc": "Colors and rankings indicate investigation priority, not a definitive classification. Each point can be opened on the map to view its estimated probability, ranking position, and local explanation of contributing variables."}};
+  function rfLang() {
+    const saved = window.rfSafeStorage.getItem('revelando_lang');
+    return saved === 'en' ? 'en' : 'pt';
+  }
+  window.rfText = function(key) {
+    const lang = rfLang();
+    return (RF_TEXTS[lang] && RF_TEXTS[lang][key]) || (RF_TEXTS.pt && RF_TEXTS.pt[key]) || key;
+  };
+  window.rfSetLang = function(lang) {
+    lang = lang === 'en' ? 'en' : 'pt';
+    window.rfSafeStorage.setItem('revelando_lang', lang);
+    document.documentElement.lang = lang === 'en' ? 'en' : 'pt-BR';
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      el.textContent = window.rfText(el.dataset.i18n);
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      el.innerHTML = window.rfText(el.dataset.i18nHtml);
+    });
+    document.querySelectorAll('[data-lang]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+    if (typeof window.onRevelandoLanguageChange === 'function') {
+      window.onRevelandoLanguageChange(lang);
+    }
+  };
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-lang]').forEach(btn => {
+      btn.addEventListener('click', () => window.rfSetLang(btn.dataset.lang));
+    });
+    window.rfSetLang(rfLang());
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,207 @@
+ordem	sigla_tabela	nome_site_daqui_em_diante	nome_site_original	classe_ibge	eixo	status_modelo	descricao_tecnica
+1	id	ID	ID	Identificação	Identificação	Não	ID único da célula de (50m,100m,200m)
+2	divisao_geografica	Divisão Geográfica	Divisão Geográfica	Identificação	Identificação	Não	Divisão Geográfica IBGE
+3	divisao_coluna	Divisão Geográfica	Divisão Geográfica	Identificação	Identificação	Não	Divisão Geográfica IBGE
+4	id_res_m	Resolução da célula	Resolução da célula	Identificação	Identificação	Não	Resolução da célula (50, 100, 200m)
+5	id_col	ID coluna	ID coluna	Identificação	Identificação	Não	Coordenada X (Coluna)
+6	id_row	ID linha	ID linha	Identificação	Identificação	Não	Coordenada Y (Linha)
+7	id_200m	ID célula 200m	ID célula 200m	Identificação	Identificação	Não	ID célula 200m
+8	id_100m	ID célula 100m	ID célula 100m	Identificação	Identificação	Não	ID célula 100m
+9	id_grid_1km	ID grid 1km	ID grid 1km	Identificação	Identificação	Não	ID grid 1km
+10	id_grid_5km	ID grid 5km	ID grid 5km	Identificação	Identificação	Não	ID grid 5km
+11	id_grid_10km	ID grid 10km	ID grid 10km	Identificação	Identificação	Não	ID grid 10km
+12	id_grid_50km	ID grid 50km	ID grid 50km	Identificação	Identificação	Não	ID grid 50km
+13	id_grid_100km	ID grid 100km	ID grid 100km	Identificação	Identificação	Não	ID grid 100km
+14	id_grid_500km	ID grid 500km	ID grid 500km	Identificação	Identificação	Não	ID grid 500km
+15	id_quadrante	ID quadrante	ID quadrante	Identificação	Identificação	Não	ID quadrante
+16	id_quadrante_origem	ID quadrante	ID quadrante	Identificação	Identificação	Não	ID quadrante
+17	id_rg2017_cd_mun	Código Município	Código Município	Identificação	Identificação	Não	Código Município
+18	id_rg2017_mun_nome	Nome Município	Nome Município	Identificação	Identificação	Não	Nome Município
+19	id_rg2017_cd_uf	Código UF	Código UF	Identificação	Identificação	Não	Código UF
+20	id_rg2017_cd_rgi	Código RGI	Código RGI	Identificação	Identificação	Não	Código RGI
+21	id_rg2017_nome_rgi	Nome RGI	Nome RGI	Identificação	Identificação	Não	Nome RGI
+22	id_rg2017_cd_rgint	Código RGInt	Código RGInt	Identificação	Identificação	Não	Código RGInt
+23	id_rg2017_nome_rgint	Nome RGInt	Nome RGInt	Identificação	Identificação	Não	Nome RGInt
+24	id_ibge_cd_setor	Código setor censitário	Código setor censitário	Identificação	Identificação	Não	Código setor censitário
+25	has_urbano_idade	Área ocupada MapBiomas	Área ocupada MapBiomas	Identificação	Identificação	Não	Área ocupada MapBiomas
+26	has_urbano_au2019	Área ocupada IBGE 2019	Área ocupada IBGE 2019	Identificação	Identificação	Não	Área ocupada IBGE 2019
+27	has_cnefe	Área ocupada CNEFE	Área ocupada CNEFE	Identificação	Identificação	Não	Área ocupada CNEFE
+28	cnefe_qtd_dom	Contagem Domicílios	Contagem Domicílios	Edificações, arruamento, parametros urbanísticos	Densidade	Sim	Quatidade de domicílios na célula
+29	ibge_totaldppo	Total domicílios	Total domicílios	Edificações, arruamento, parametros urbanísticos	Bloqueadas	Não	Domicílios Particulares Permanentes Ocupados
+30	ibge_totalmora	Total pessoas	Total pessoas	Edificações, arruamento, parametros urbanísticos	Bloqueadas	Não	Total de pessoas
+31	p_ibge_naorede	Sem rede d'água	Sem rede d'água	Serviços Públicos	Infraestrutura	Sim	% Domicílios com outra forma de abastecimento de água que não rede geral
+32	has_fcu_centroid	Célula FCU	Célula FCU	Identificação	Identificação	Não	Tem favela no centroide do quadrante
+33	has_fcu_n_setorizada	Célula FCU não setorizada	Célula FCU não setorizada	Identificação	Identificação	Não	Célula FCU não setorizada
+34	has_fcu_setorizada	Célula FCU setorizada	Célula FCU setorizada	Identificação	Identificação	Não	Célula FCU setorizada
+35	tipo_fcu	Tipo FCU	Tipo FCU	Identificação	Identificação	Não	Tipo FCU
+36	id_fcu	ID FCU	ID FCU	Identificação	Identificação	Não	ID FCU
+37	cd_fcu	Código FCU	Código FCU	Identificação	Identificação	Não	Código FCU
+38	nm_fcu	Nome FCU	Nome FCU	Identificação	Identificação	Não	Nome FCU
+39	fcu_cd_uf	Código UF	Código UF	Identificação	Identificação	Não	Código UF
+40	fcu_nm_uf	Nome UF	Nome UF	Identificação	Identificação	Não	Nome UF
+41	fcu_sigla_uf	Sigla UF	Sigla UF	Identificação	Identificação	Não	Sigla UF
+42	fcu_cd_mun	Código Município	Código Município	Identificação	Identificação	Não	Código Município
+43	fcu_nm_mun	Nome Município	Nome Município	Identificação	Identificação	Não	Nome Município
+44	fcu_setorizado	Célula FCU setorizada	Célula FCU setorizada	Identificação	Identificação	Não	Célula FCU setorizada
+45	fcu_has_fcu_setorizada	Célula FCU setorizada	Célula FCU setorizada	Identificação	Identificação	Não	Célula FCU setorizada
+46	fcu_tipo_texto	FCU tipo	FCU tipo	Identificação	Identificação	Não	FCU tipo
+47	fcu_fonte_fcu	FCU fonte	FCU fonte	Identificação	Identificação	Não	FCU fonte
+48	fcu_partes_origem	FCU origem	FCU origem	Identificação	Identificação	Não	FCU origem
+49	fcu_match_count	FCU contagem	FCU contagem	Identificação	Identificação	Não	FCU contagem
+50	fcu_area_km2	FCU área (km2)	FCU área (km2)	Identificação	Identificação	Não	FCU área (km2)
+51	p_ibge_banhinad	Sem banheiro (agregado)	Sem banheiro (agregado)	Edificações, arruamento, parametros urbanísticos	Infraestrutura	Sim	% Domicílios com banheiro de uso comum, apenas sanitário ou sem banheiro
+52	p_ibge_1banhexc	1 banheiro exclusivo	1 banheiro exclusivo	Edificações, arruamento, parametros urbanísticos	Infraestrutura	Sim	% Domicílios com 1 banheiro de uso exclusivo
+53	m_ibge_banh	Banheiros por morador	Banheiros por morador	Edificações, arruamento, parametros urbanísticos	Infraestrutura	Sim	Média de banheiros por habitante
+54	p_ibge_vmoto	Via compartilhada	Via compartilhada	Edificações, arruamento, parametros urbanísticos	Entorno	Sim	% Domicílios em face com circulação da via - pedestres, bicicletas e motocicletas
+55	p_ibge_vnaopavi	Via não pavimentada	Via não pavimentada	Edificações, arruamento, parametros urbanísticos	Entorno	Sim	% Domicílios em face com via pavimentada - Não
+56	p_ibge_naobueir	Sem bueiro	Sem bueiro	Edificações, arruamento, parametros urbanísticos	Entorno	Sim	% Domicílios em face com bueiro - Não
+57	p_ibge_naoilupub	Sem iluminação pública	Sem iluminação pública	Edificações, arruamento, parametros urbanísticos	Entorno	Sim	% Domicílios em face com iluminação pública - Não
+58	p_ibge_naocalca	Sem calçada	Sem calçada	Edificações, arruamento, parametros urbanísticos	Entorno	Sim	% Domicílios em face com calçada - Não
+59	p_ibge_obsta	Calçada com obstáculo	Calçada com obstáculo	Edificações, arruamento, parametros urbanísticos	Entorno	Sim	% Domicílios em face com obstáculo na calçada - Sim
+60	p_ibge_calcainade	Calçada inadequada	% IBGE calcainade	Edificações, arruamento, parametros urbanísticos	Entorno	Sim	Proporcao de celulas/setores com calcada inadequada, considerando sem calcada ou calcada com obstaculo.
+61	p_ibge_naoarbo	Sem arborização	% IBGE naoarbo	Edificações, arruamento, parametros urbanísticos	Entorno	Sim	Proporcao do entorno sem arborizacao, calculada sobre as categorias validas de arborizacao.
+62	p_ibge_esginade	Esgoto inadequado	% IBGE esginade	Serviços Públicos	Infraestrutura	Sim	Proporcao de domicilios com esgotamento sanitario inadequado.
+63	p_ibge_lixoinade	Coleta de lixo inadequada	% IBGE lixoinade	Serviços Públicos	Infraestrutura	Sim	Proporcao de domicilios com destino do lixo inadequado.
+64	p_ibge_lixocaca	Lixo em caçamba	% IBGE lixocaca	Serviços Públicos	Infraestrutura	Sim	Proporcao de domicilios cujo lixo e coletado em cacamba/servico equivalente da classificacao Censo.
+65	p_ibge_lixoquei	Lixo queimado	% IBGE lixoquei	Serviços Públicos	Infraestrutura	Sim	Proporcao de domicilios cujo lixo e queimado.
+66	p_ibge_lixoente	% IBGE lixoente	% IBGE lixoente	Serviços Públicos	Infraestrutura	Sim	Proporcao de domicilios cujo lixo e enterrado.
+67	p_ibge_lixoterr	% IBGE lixoterr	% IBGE lixoterr	Serviços Públicos	Infraestrutura	Sim	Proporcao de domicilios cujo lixo e jogado em terreno, logradouro ou corpo d'agua.
+68	m_ibge_renddppo	Renda média domiciliar	Média IBGE renddppo	Censo, domicílios e infraestrutura	Renda	Sim	Rendimento medio mensal dos domicilios particulares permanentes ocupados, conforme campo V06004 do Censo.
+69	ibge_mediadom	Domicílios	Domicílios	Edificações, arruamento, parametros urbanísticos	Densidade	Não	Média de domicílios na célula
+70	ibge_mediapop	População	População	Edificações, arruamento, parametros urbanísticos	Densidade	Não	Média Populacional na célula
+71	ibge_mediapopdom	População por domicílio	População por domicílio	Edificações, arruamento, parametros urbanísticos	Densidade	Não	Média populacional por domicílios na célula
+72	area_rgint_redencao	RGInt Redenção	RGInt Redenção	Identificação	Identificação	Não	RGInt Redenção
+73	area_conc_urb_curitiba	Concentração Urbana Curitiba	Concentração Urbana Curitiba	Identificação	Identificação	Não	Concentração Urbana Curitiba
+74	area_conc_urb_fortaleza	Concentração Urbana Fortaleza	Concentração Urbana Fortaleza	Identificação	Identificação	Não	Concentração Urbana Fortaleza
+75	area_conc_urb_goiania	Concentração Urbana Goiânia	Concentração Urbana Goiânia	Identificação	Identificação	Não	Concentração Urbana Goiânia
+76	area_conc_urb_sao_paulo	Concentração Urbana São Paulo	Concentração Urbana São Paulo	Identificação	Identificação	Não	Concentração Urbana São Paulo
+77	area_rgint_macapa	RGInt Macapá	RGInt Macapá	Identificação	Identificação	Não	RGInt Macapá
+78	area_rgint_belem	RGInt Belém	RGInt Belém	Identificação	Identificação	Não	RGInt Belém
+79	area_conc_urb_rio_de_janeiro	area conc urb rio de janeiro	area conc urb rio de janeiro	Identificação	Identificação	Não	Indicador de pertencimento ao recorte da concentracao urbana do Rio de Janeiro.
+80	geometry	Geometria	Geometria	Identificação	Identificação	Não	Geometria
+81	has_decliv30	Declividade crítica acima de 30%	Indicador decliv30	Áreas com restrição a ocupação	Morfológico	Sim	Indicador de celula cujo centroide cai em pixel de declividade acima do limiar definido no script.
+82	m_shapeindex_quadra	Forma das quadras	Média shapeindex quadra	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Indice de forma da quadra OSM associada ao centroide da celula; quanto maior, mais irregular/menos compacta.
+83	idade_ocupacao_media	Idade média da ocupação urbana	idade ocupacao media	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Idade media de ocupacao urbana da celula a partir do primeiro ano urbanizado.
+84	idade_ocupacao_menor	Ocupação urbana mais recente	idade ocupacao menor	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Menor idade de ocupacao urbana observada na celula.
+85	idade_ocupacao_maior	Ocupação urbana mais antiga	idade ocupacao maior	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Maior idade de ocupacao urbana observada na celula.
+86	has_restricao_final	Restrição urbana	Indicador restricao final	Áreas com restrição a ocupação	Morfológico	Sim	Células com restrição a ocupação: rodovias, ferrovias, oleoduto, linhas de transmissao, hidrografia, UCs, susc. a inundação, declividade
+87	bf_num_edif	BF num edif	BF num edif	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Não	Numero de edificios Building Footprints com centroide dentro da celula.
+88	bf_area_constr_m2	BF area constr m2	BF area constr m2	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Não	Soma da area dos edificios Building Footprints dentro da celula, em metros quadrados.
+89	p_bf_area_constr	% BF area constr	% BF area constr	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Não	Proporcao da area da celula ocupada por edificios Building Footprints.
+90	m_bf_area_edif	Média BF area edif	Média BF area edif	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Não	Area media dos edificios Building Footprints dentro da celula.
+91	m_bf_perim_edif	Média BF perim edif	Média BF perim edif	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Não	Perimetro medio dos edificios Building Footprints dentro da celula.
+92	m_bf_reg_edif	Média BF reg edif	Média BF reg edif	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Não	Compacidade media dos edificios Building Footprints.
+93	m_bf_quadr_edif	Média BF quadr edif	Média BF quadr edif	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Não	Alongamento medio dos edificios Building Footprints.
+94	m_bf_shapein_edif	Média BF shapein edif	Média BF shapein edif	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Não	Shape index medio dos edificios Building Footprints.
+95	m_bf_hull_edif	Média BF hull edif	Média BF hull edif	Edificações, arruamento, parametros urbanísticos	Morfológico	Não	Média da área hull das edificações
+96	m_bf_distviz_edif	Média BF distviz edif	Média BF distviz edif	Edificações, arruamento, parametros urbanísticos	Morfológico	Não	Distância média entre edifícios vizinhos
+97	vias_carro_dist	Distância até via carroçável	vias carro dist	Edificações, arruamento, parametros urbanísticos	Morfológico	Sim	Distancia do centroide da celula ate a via carrocavel mais proxima.
+98	p_vias_50m	Proximidade de vias carroçáveis	% vias 50m	Edificações, arruamento, parametros urbanísticos	Morfológico	Sim	Proporcao da celula coberta pelo buffer de 50 metros das vias carroçaveis.
+99	has_app	Presença de APP	Indicador APP	Áreas com restrição a ocupação	Morfológico	Sim	Indicador de celula com area de APP/restricao ambiental.
+100	app_area_m2	APP area m2	APP area m2	Áreas com restrição a ocupação	Morfológico	Sim	Area de intersecao entre APP/restricao ambiental e a celula, em metros quadrados.
+101	p_app_area	% APP area	% APP area	Áreas com restrição a ocupação	Morfológico	Sim	Proporcao da area da celula ocupada por APP/restricao ambiental.
+102	ibge_mediadomc	Domicílios tipo casa por célula	Domicílios tipo casa por célula	Edificações, arruamento, parametros urbanísticos	Densidade	Sim	Média estimada de domicílios tipo casa por célula de 50 m. O total do setor censitário é distribuído igualmente entre as células que intersectam o setor.
+103	ibge_mediapopc	Moradores em casas por célula	Moradores em casas por célula	Edificações, arruamento, parametros urbanísticos	Densidade	Sim	Média estimada de moradores em domicílios tipo casa por célula de 50 m. O total do setor censitário é distribuído igualmente entre as células que intersectam o setor.
+104	ibge_mediapopdomc	Moradores por domicílio tipo casa	Moradores por domicílio tipo casa	Edificações, arruamento, parametros urbanísticos	Densidade	Sim	Média de moradores por domicílio tipo casa no setor censitário.
+105	ibge_mediadoma	Domicílios tipo apartamento por célula	Domicílios tipo apartamento por célula	Edificações, arruamento, parametros urbanísticos	Densidade	Sim	Média estimada de domicílios tipo apartamento por célula de 50 m. O total do setor censitário é distribuído igualmente entre as células que intersectam o setor.
+106	ibge_mediapopa	Moradores em apartamentos por célula	Moradores em apartamentos por célula	Edificações, arruamento, parametros urbanísticos	Densidade	Sim	Média estimada de moradores em domicílios tipo apartamento por célula de 50 m. O total do setor censitário é distribuído igualmente entre as células que intersectam o setor.
+107	ibge_mediapopdoma	Moradores por domicílio tipo apartamento	Moradores por domicílio tipo apartamento	Edificações, arruamento, parametros urbanísticos	Densidade	Sim	Média de moradores por domicílio tipo apartamento no setor censitário.
+108	decli_media	Declividade média	decli media	Áreas com restrição a ocupação	Morfológico	Sim	Declividade media da celula derivada da fonte de declividade 50m e agregada por resolucao quando necessario.
+109	ndvi	Vegetação média (NDVI)	ndvi	Edificações, arruamento, parametros urbanísticos	Espectral	Sim	Media do indice NDVI Sentinel na celula.
+110	vari	Vegetação visível (VARI)	vari	Edificações, arruamento, parametros urbanísticos	Espectral	Sim	Media do indice VARI Sentinel na celula.
+111	rgri	Razão vermelho-verde (RGRI)	rgri	Edificações, arruamento, parametros urbanísticos	Espectral	Sim	Media do indice RGRI Sentinel na celula.
+112	vgnirbi	Índice verde-NIR (VgNIRBI)	vgnirbi	Edificações, arruamento, parametros urbanísticos	Espectral	Sim	Media do indice VG-NIR-BI Sentinel na celula.
+113	pisi	Índice espectral PISI	pisi	Edificações, arruamento, parametros urbanísticos	Espectral	Sim	Media do indice PISI Sentinel na celula.
+114	b5	Banda Sentinel-2 B5	b5	Edificações, arruamento, parametros urbanísticos	Espectral	Sim	Media da banda Sentinel renomeada para b5.
+115	b6	Banda Sentinel-2 B6	b6	Edificações, arruamento, parametros urbanísticos	Espectral	Sim	Media da banda Sentinel renomeada para b6.
+116	b7	Banda Sentinel-2 B7	b7	Edificações, arruamento, parametros urbanísticos	Espectral	Sim	Media da banda Sentinel renomeada para b7.
+117	b11	Banda Sentinel-2 B11	b11	Edificações, arruamento, parametros urbanísticos	Espectral	Sim	Media da banda Sentinel renomeada para b11.
+118	b12	Banda Sentinel-2 B12	b12	Edificações, arruamento, parametros urbanísticos	Espectral	Sim	Media da banda Sentinel renomeada para b12.
+119	p_ibge_brancos	Brancos	Brancos	x	Social	Não	% Pessoas brancas
+120	p_ibge_pretos	Pretos	Pretos	x	Social	Não	% Pessoas pretas
+121	p_ibge_amarelos	Amarelos	Amarelos	x	Social	Não	% Pessoas amarelas
+122	p_ibge_pardos	Pardos	Pardos	x	Social	Não	% Pessoas pardas
+123	p_ibge_indigenas	Índigenas	Índigenas	x	Social	Não	% Pessoas indígenas
+124	p_ibge_homalfab	Homens alfabetizados	Homens alfabetizados	x	Social	Não	% Homens, 15+ alfabetizados
+125	p_ibge_homnalfab	Homens não alfabetizados	Homens não alfabetizados	x	Social	Não	% Homens, 15+, não alfabetizados
+126	p_ibge_mulalfab	Mulheres alfabetizadas	Mulheres alfabetizadas	x	Social	Não	% Mulheres, 15+, alfabetizados
+127	p_ibge_mulnalfab	Mulheres não alfabetizadas	Mulheres não alfabetizadas	x	Social	Não	% Mulheres, 15+, não alfabetizados
+128	p_ibge_resp_60mais	Responsável 60 anos ou mais	Responsável 60 anos ou mais	x	Social	Não	% Responsável 60 anos ou mais
+129	p_ibge_resp_40a59	Responsável 40 a 59 anos	Responsável 40 a 59 anos	x	Social	Não	% Responsável 40 a 59 anos
+130	p_ibge_resp_25a39	Responsável 25 a 39 anos	Responsável 25 a 39 anos	x	Social	Não	% Responsável 25 a 39 anos
+131	p_ibge_resp_18a24	Responsável 18 a 24 anos	Responsável 18 a 24 anos	x	Social	Não	% Responsável 18 a 24 anos
+132	p_ibge_resp_12a17	Responsável 12 a 17 anos	Responsável 12 a 17 anos	x	Social	Não	% Responsável 12 a 17 anos
+133	p_ibge_resp_fem	Responsável mulher	Responsável mulher	x	Social	Não	% Responsável sexo feminino
+134	p_ibge_resp_masc	Responsável homem	Responsável homem	x	Social	Não	% Responsável sexo masculino
+135	p_ibge_mul_indigena_nalfab	Mulher indigena não alfabetizada	Mulher indigena não alfabetizada	x	Social	Não	% Mulheres indígenas, 15+, não alfabetizadas
+136	p_ibge_mul_indigena_alfab	Mulher indigena alfabetizada	Mulher indigena alfabetizada	x	Social	Não	% Mulheres indígenas, 15+, alfabetizadas
+137	p_ibge_mul_parda_nalfab	Mulher parda não alfabetizada	Mulher parda não alfabetizada	x	Social	Não	% Mulheres pardas, 15+, não alfabetizadas
+138	p_ibge_mul_parda_alfab	Mulher parda alfabetizada	Mulher parda alfabetizada	x	Social	Não	% Mulheres pardas, 15+, alfabetizadas
+139	p_ibge_mul_amarela_nalfab	Mulher amarela não alfabetizada	Mulher amarela não alfabetizada	x	Social	Não	% Mulheres amarelas, 15+, não alfabetizadas
+140	p_ibge_mul_amarela_alfab	Mulher amarela alfabetizada	Mulher amarela alfabetizada	x	Social	Não	% Mulheres amarelas, 15+, alfabetizadas
+141	p_ibge_mul_preta_nalfab	Mulher preta não alfabetizada	Mulher preta não alfabetizada	x	Social	Não	% Mulheres pretas, 15+, não alfabetizadas
+142	p_ibge_mul_preta_alfab	Mulher preta alfabetizada	Mulher preta alfabetizada	x	Social	Não	% Mulheres pretas, 15+, alfabetizadas
+143	p_ibge_mul_branca_nalfab	Mulher branca não alfabetizada	Mulher branca não alfabetizada	x	Social	Não	% Mulheres brancas, 15+, não alfabetizadas
+144	p_ibge_mul_branca_alfab	Mulher branca alfabetizada	Mulher branca alfabetizada	x	Social	Não	% Mulheres brancas, 15+, alfabetizadas
+145	p_ibge_hom_indigena_nalfab	Homem indigena não alfabetizado	Homem indigena não alfabetizado	x	Social	Não	% Homens indígenas, 15+, não alfabetizados
+146	p_ibge_hom_indigena_alfab	Homem indigena alfabetizado	Homem indigena alfabetizado	x	Social	Não	% Homens indígenas, 15+, alfabetizados
+147	p_ibge_hom_parda_nalfab	Homem pardo não alfabetizado	Homem pardo não alfabetizado	x	Social	Não	% Homens pardos, 15+, não alfabetizados
+148	p_ibge_hom_parda_alfab	Homem pardo alfabetizado	Homem pardo alfabetizado	x	Social	Não	% Homens pardos, 15+, alfabetizados
+149	p_ibge_hom_amarela_nalfab	Homem amarelo não alfabetizado	Homem amarelo não alfabetizado	x	Social	Não	% Homens amarelos, 15+, não alfabetizados
+150	p_ibge_hom_amarela_alfab	Homem amarelo alfabetizado	Homem amarelo alfabetizado	x	Social	Não	% Homens amarelos, 15+, alfabetizados
+151	p_ibge_hom_preta_nalfab	Homem preto não alfabetizado	Homem preto não alfabetizado	x	Social	Não	% Homens pretos, 15+, não alfabetizados
+152	p_ibge_hom_preta_alfab	Homem preto alfabetizado	Homem preto alfabetizado	x	Social	Não	% Homens pretos, 15+, alfabetizados
+153	p_ibge_hom_branca_nalfab	Homem branco não alfabetizado	Homem branco não alfabetizado	x	Social	Não	% Homens brancos, 15+, não alfabetizados
+154	p_ibge_hom_branca_alfab	Homem branco alfabetizado	Homem branco alfabetizado	x	Social	Não	% Homens brancos, 15+, alfabetizados
+155	cssi1	Índice espectral CSSI-1	cssi1	Edificações, arruamento, parâmetros urbanísticos	Espectral	Sim	Indice CSSI calculado com bandas SWIR e red-edge; denominador zero retorna 0.
+156	cssi2	Índice espectral CSSI-2	cssi2	Edificações, arruamento, parâmetros urbanísticos	Espectral	Sim	Indice CSSI calculado a partir de rgri e vari; denominador zero ou vari zero retorna 0.
+157	gba_num_edif	Número de edificações (GBA)	Número de edificações GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Número de edificações (Google Buildings)
+158	gba_edif_por_ha	Edifícios por hectare (GBA)	Edifícios por hectare	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Densidade de edificações por hectare.
+159	gba_area_constr_m2	Área construída GBA	Área construída GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Área construída total dos edifícios GBA na célula (m²).
+160	p_gba_area_constr	Proporção área construída GBA	Proporção área construída GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Proporção da área da célula ocupada por área construída GBA.
+161	m_gba_area_edif	Área média dos edifícios (GBA)	Área média edifícios GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Área média dos edifícios GBA na célula.
+162	med_gba_area_edif	Mediana área edifícios GBA	Mediana área edifícios GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Mediana da área dos edifícios GBA na célula.
+163	p10_gba_area_edif	P10 área edifícios GBA	P10 área edifícios GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Percentil 10 da área dos edifícios GBA.
+164	p90_gba_area_edif	P90 área edifícios GBA	P90 área edifícios GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Percentil 90 da área dos edifícios GBA.
+165	cv_gba_area_edif	Variação da área dos edifícios (GBA)	CV área edifícios GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Coeficiente de variação da área dos edifícios GBA.
+166	gba_num_edif_peq_p10	Edifícios pequenos (GBA)	Edifícios pequenos GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Número de edifícios GBA abaixo do percentil 10 de área.
+167	p_gba_edif_peq_p10	Proporção de edifícios pequenos (GBA)	% edifícios pequenos GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Proporção de edifícios GBA abaixo do percentil 10 de área.
+168	m_gba_altura	Altura média GBA	Altura média GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Altura média dos edifícios GBA com altura válida (m).
+169	med_gba_altura	Mediana altura GBA	Mediana altura GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Mediana da altura dos edifícios GBA.
+170	p10_gba_altura	Altura baixa - percentil 10 (GBA)	P10 altura GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Percentil 10 da altura dos edifícios GBA.
+171	p90_gba_altura	P90 altura GBA	P90 altura GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Percentil 90 da altura dos edifícios GBA.
+172	max_gba_altura	Altura máxima dos edifícios (GBA)	Altura máxima GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Altura máxima dos edifícios GBA na célula.
+173	std_gba_altura	Desvio altura GBA	Desvio altura GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Desvio padrão da altura dos edifícios GBA.
+174	cv_gba_altura	Variação da altura dos edifícios (GBA)	CV altura GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Coeficiente de variação da altura dos edifícios GBA.
+175	iqr_gba_altura	IQR altura GBA	IQR altura GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Não	Amplitude interquartil da altura dos edifícios GBA.
+176	p_gba_altura_baixa_6m	Edifícios baixos até 6 m (GBA)	% altura baixa GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Proporção de edifícios GBA com altura baixa (até 6m).
+177	p_gba_altura_alta_12m	% altura alta GBA	% altura alta GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Proporção de edifícios GBA com altura alta (12m ou mais).
+178	gba_volume_m3	Volume construído GBA	Volume construído GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Volume total construído estimado dos edifícios GBA (m³).
+179	gba_volume_por_ha	Volume por hectare GBA	Volume por hectare GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Volume construído GBA por hectare.
+180	m_gba_volume_edif	Volume médio dos edifícios (GBA)	Volume médio edifício GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Volume médio estimado por edifício GBA.
+181	gba_area_piso_proxy_m2	Área de piso proxy GBA	Área de piso proxy GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Área de piso proxy estimada (m²), usando pavimentos aproximados pela altura.
+182	gba_floors_proxy_media	Pavimentos estimados (GBA)	Pavimentos proxy GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Média de pavimentos proxy dos edifícios GBA.
+183	m_gba_height_var	Variância média altura GBA	Variância média altura GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Média da variância/incerteza de altura dos edifícios GBA.
+184	p90_gba_height_var	P90 variância altura GBA	P90 variância altura GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Percentil 90 da variância/incerteza de altura.
+185	p_gba_altura_incert_alta	% incerteza alta GBA	% incerteza alta GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Não	Proporção de edifícios GBA com alta incerteza de altura.
+186	p_gba_height_valid	% altura válida GBA	% altura válida GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Não	Proporção de edifícios GBA com altura válida.
+187	m_gba_dist_nn	Distância ao vizinho mais próximo (GBA)	Distância média vizinho GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Distância média ao edifício GBA vizinho mais próximo.
+188	p10_gba_dist_nn	P10 distância vizinho GBA	P10 distância vizinho GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Percentil 10 da distância ao vizinho mais próximo.
+189	med_gba_dist_nn	Mediana da distância ao vizinho (GBA)	Mediana distância vizinho GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Mediana da distância ao vizinho mais próximo.
+190	m_gba_compacidade	Compacidade dos edifícios (GBA)	Compacidade GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Compacidade média dos edifícios GBA.
+191	m_gba_elongacao	Alongamento GBA	Alongamento GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Alongamento médio dos edifícios GBA.
+192	m_gba_retangularidade	Retangularidade dos edifícios (GBA)	Retangularidade GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Retangularidade média dos edifícios GBA.
+193	std_gba_orientacao	Desvio orientação GBA	Desvio orientação GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Dispersão circular da orientação dos edifícios GBA.
+194	ent_gba_orientacao	Diversidade de orientação dos edifícios (GBA)	Entropia orientação GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Grau de diversidade das orientações dos edifícios GBA.
+195	p_gba_source_google	% fonte Google GBA	% fonte Google GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Não	Proporção de edifícios GBA oriundos da fonte Google.
+196	p_gba_source_osm	% fonte OSM GBA	% fonte OSM GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Não	Proporção de edifícios GBA oriundos da fonte OSM.
+197	p_gba_source_microsoft	% fonte Microsoft GBA	% fonte Microsoft GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Não	Proporção de edifícios GBA oriundos da fonte Microsoft.
+198	p_gba_source_tum	% fonte TUM GBA	% fonte TUM GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Não	Proporção de edifícios GBA oriundos da fonte TUM.
+199	ent_gba_source	Entropia fonte GBA	Entropia fonte GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Não	Diversidade das fontes dos edifícios GBA dentro da célula.
+200	m_gba_dist10viz	Distância 10 vizinhos GBA	Distância 10 vizinhos GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Distância média aos 10 edifícios vizinhos mais próximos.
+201	m_gba_dist20viz	Distância aos 20 vizinhos (GBA)	Distância 20 vizinhos GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Distância média aos 20 edifícios vizinhos mais próximos.
+202	p_ibge_pretpard	Pretos ou pardos	Pretos ou pardos	x	Social	Não	Proporção de pessoas pretas ou pardas.
+203	p_ibge_pretpardind	Pretos, pardos ou indígenas	Pretos, pardos ou indígenas	x	Social	Não	Proporção de pessoas pretas, pardas ou indígenas.
+204	gba_intensidade_ocup	Intensidade ocupação GBA	Intensidade ocupação GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Interação entre volume construído GBA e proporção de área construída na célula.
+205	gba_ocup_shape	Ocupação x forma GBA	Ocupação x forma GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Interação entre proporção de área construída e índice de forma dos edifícios.
+206	gba_volume_shape	Volume x forma GBA	Volume x forma GBA	Edificações, arruamento, parâmetros urbanísticos	Morfológico	Sim	Interação entre volume construído GBA e índice de forma dos edifícios.

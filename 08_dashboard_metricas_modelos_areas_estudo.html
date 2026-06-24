@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+<script>
+(function() {
+  const memory = {};
+  function getStorage() {
+    try {
+      const storage = window.localStorage;
+      const testKey = "__rf_storage_test__";
+      storage.setItem(testKey, "1");
+      storage.removeItem(testKey);
+      return storage;
+    } catch (err) {
+      return null;
+    }
+  }
+  const storage = getStorage();
+  window.rfSafeStorage = {
+    getItem(key) {
+      try {
+        return storage ? storage.getItem(key) : (Object.prototype.hasOwnProperty.call(memory, key) ? memory[key] : null);
+      } catch (err) {
+        return Object.prototype.hasOwnProperty.call(memory, key) ? memory[key] : null;
+      }
+    },
+    setItem(key, value) {
+      const text = String(value);
+      memory[key] = text;
+      try {
+        if (storage) storage.setItem(key, text);
+      } catch (err) {}
+    },
+    removeItem(key) {
+      delete memory[key];
+      try {
+        if (storage) storage.removeItem(key);
+      } catch (err) {}
+    }
+  };
+})();
+</script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preditor FCU - Análise dos modelos</title>
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<script>
+(function () {
+  function isNonCriticalPlotlyError(err) {
+    const message = String((err && err.message) || err || '');
+    return message.includes('_redrawFromAutoMarginCount');
+  }
+  function safeWrapPlotly() {
+    if (!window.Plotly || window.Plotly.__revelandoSafeWrapped) return;
+    ['newPlot', 'react', 'relayout', 'restyle', 'update'].forEach(function (name) {
+      const original = window.Plotly[name];
+      if (typeof original !== 'function') return;
+      window.Plotly[name] = function () {
+        try {
+          const result = original.apply(this, arguments);
+          if (result && typeof result.catch === 'function') {
+            result.catch(function (err) {
+              if (isNonCriticalPlotlyError(err)) return null;
+              console.warn(err);
+              return null;
+            });
+          }
+          return result;
+        } catch (err) {
+          if (isNonCriticalPlotlyError(err)) return null;
+          throw err;
+        }
+      };
+    });
+    window.Plotly.__revelandoSafeWrapped = true;
+  }
+  safeWrapPlotly();
+})();
+</script>
+  <style>
+    :root {
+      --primary: #2c3e50;
+      --accent: #3498db;
+      --risk-high: #e74c3c;
+      --risk-low: #2ecc71;
+      --bg-body: #f8f9fa;
+      --bg-card: #ffffff;
+      --text-main: #2c3e50;
+      --text-muted: #95a5a6;
+      --border: #e0e0e0;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --sidebar-width: 260px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+    .sidebar {
+      width: var(--sidebar-width);
+      background: white;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+      flex-shrink: 0;
+      overflow-y: auto;
+      z-index: 10;
+    }
+    .brand {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .menu-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+    }
+    #nav-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .btn-nav {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border: none;
+      background: transparent;
+      border-radius: 9px;
+      color: var(--text-main);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+    }
+    .btn-nav:hover { background-color: #f1f3f5; }
+    .btn-nav.active {
+      background-color: #edf2f7;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem;
+      position: relative;
+    }
+    .container { max-width: 1180px; margin: 0 auto; }
+    header { margin-bottom: 1.5rem; }
+    h1 { margin-bottom: 0.5rem; font-size: 2rem; color: var(--primary); }
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-main);
+      max-width: 900px;
+      line-height: 1.5;
+    }
+    .tab-nav {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab-btn {
+      padding: 0.75rem 1rem;
+      border: none;
+      background: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      position: relative;
+      top: 1px;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s;
+    }
+    .tab-btn:hover { color: var(--primary); }
+    .tab-btn.active {
+      color: var(--accent);
+      font-weight: 600;
+      border-bottom: 2px solid var(--accent);
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .metric-card {
+      background: #f8f9fa;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .metric-value {
+      margin-top: 0.35rem;
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .metric-hint {
+      margin-top: 0.35rem;
+      color: var(--text-muted);
+      font-size: 0.86rem;
+      line-height: 1.35;
+    }
+    .diagnostic-section {
+      margin-bottom: 1.5rem;
+    }
+    .diagnostic-section > h2 {
+      margin: 0 0 0.85rem 0;
+    }
+    .grid-charts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .chart-wrapper { width: 100%; min-height: 410px; }
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .quality-table {
+      width: 100%;
+      min-width: 860px;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 0.9rem;
+    }
+    .quality-table th, .quality-table td {
+      padding: 0.8rem 0.7rem;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: middle;
+    }
+    .quality-table th {
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .quality-table th:first-child,
+    .quality-table td:first-child {
+      width: 220px;
+      white-space: normal;
+    }
+    .quality-table th.num,
+    .quality-table td.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .table-note {
+      margin-top: 0.75rem;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+    .pill {
+      display: inline-flex;
+      padding: 0.24rem 0.55rem;
+      border-radius: 20px;
+      background: #edf2f7;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: 1px solid var(--border);
+    }
+    .explain-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .version {
+      margin-top: auto;
+      font-size: 0.75rem;
+      color: #aaa;
+      padding-top: 1rem;
+    }
+    @media (max-width: 900px) {
+      body { display: block; overflow: auto; }
+      .sidebar { width: 100%; height: auto; }
+      .main { overflow: visible; padding: 1rem; }
+      .grid-charts { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      h1 { font-size: 1.55rem; }
+      .subtitle { font-size: 0.95rem; }
+      .card { padding: 1rem; border-radius: 8px; }
+      .tab-nav { gap: 0.35rem; overflow-x: auto; padding-bottom: 0.35rem; }
+      .tab-btn { flex: 0 0 auto; padding: 0.65rem 0.7rem; }
+      .quality-table {
+        min-width: 0;
+        border-collapse: separate;
+        border-spacing: 0 0.75rem;
+      }
+      .quality-table thead { display: none; }
+      .quality-table,
+      .quality-table tbody,
+      .quality-table tr,
+      .quality-table td {
+        display: block;
+        width: 100%;
+      }
+      .quality-table tr {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.35rem 0;
+      }
+      .quality-table td {
+        border-bottom: 0;
+        padding: 0.45rem 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        text-align: right;
+      }
+      .quality-table td:first-child {
+        width: 100%;
+        font-weight: 800;
+        color: var(--primary);
+        text-align: left;
+        display: block;
+        padding-bottom: 0.65rem;
+      }
+      .quality-table td:not(:first-child)::before {
+        content: attr(data-label);
+        color: var(--text-muted);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        text-align: left;
+      }
+    }
+  </style>
+
+<style id="revelando-site-shell">
+  .site-nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.25rem 0 1.25rem 0;
+    padding: 0.65rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .site-nav-links a {
+    color: #2c3e50;
+    text-decoration: none;
+    border: 1px solid #d8dee6;
+    border-radius: 6px;
+    padding: 0.45rem 0.7rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    background: #f8fafc;
+  }
+  .site-nav-links a:hover,
+  .site-nav-links a.active {
+    color: #ffffff;
+    background: #2c3e50;
+    border-color: #2c3e50;
+  }
+  .site-footer {
+    margin: 2rem 0 0 0;
+    padding: 1.2rem 1.4rem;
+    border-top: 1px solid #e5e7eb;
+    color: #475569;
+    background: #ffffff;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+  .site-footer a {
+    color: #2563eb;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .site-footer a:hover { text-decoration: underline; }
+  .site-footer .site-footer-link { margin-top: 0.4rem; }
+  .site-lang-toggle {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+    margin: 0.8rem 0 1rem;
+  }
+  .site-lang-toggle button {
+    border: 1px solid #d8dee6;
+    background: #ffffff;
+    color: #2c3e50;
+    border-radius: 999px;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.82rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .site-lang-toggle button.active {
+    background: #2c3e50;
+    border-color: #2c3e50;
+    color: #ffffff;
+  }
+  @media (max-width: 720px) {
+    .site-nav-links { gap: 0.35rem; padding: 0.5rem; }
+    .site-nav-links a { width: 100%; text-align: center; }
+  }
+</style>
+
+</head>
+<body>
+  <script type="application/json" id="metrics-data">{"quality":[{"scenario":"completo_rho070","area":"Curitiba - Conc. Urbana","area_col":"area_conc_urb_curitiba","model_type":"ebm","n_rows_used_model":300000,"n_train":148873,"n_calib":63450,"n_test":87677,"pos_test":5107,"prevalence_test":0.0582478871311746,"n_features":16,"roc_auc":0.9648641845184008,"average_precision":0.7387100849177746,"ap_lift_prevalence":12.682178209386278,"brier":0.0261049468232401,"f1_05":0.685461813591416,"precision_05":0.7406228688338259,"recall_05":0.6379479146269825,"balanced_accuracy_05":0.8120646682254448,"threshold_max_f1":0.26,"f1_max":0.6985172981878089,"precision_max_f1":0.6557827805464856,"recall_max_f1":0.7472097121597807,"threshold_max_balacc":0.05,"balanced_accuracy_max":0.9142688005091194,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":212323,"n_train_pool_after_purge":212323,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":1409,"n_test_groups":604,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":150.0,"nearest_test_to_train_m_median":250.0,"nearest_test_to_train_m_mean":286.369542473405,"nearest_test_to_train_m_p75":400.0,"nearest_test_to_train_m_p95":640.3124237432849,"nearest_test_to_train_m_max":2510.975905897944,"cenario_pasta":"31_completo","cenario_nome":"Completo 31"},{"scenario":"completo_rho070","area":"Fortaleza - Conc. Urbana","area_col":"area_conc_urb_fortaleza","model_type":"ebm","n_rows_used_model":257306,"n_train":123701,"n_calib":52956,"n_test":80649,"pos_test":5751,"prevalence_test":0.071309005691329,"n_features":5,"roc_auc":0.9543113149619876,"average_precision":0.6383885329030725,"ap_lift_prevalence":8.952425106955294,"brier":0.0378516413151155,"f1_05":0.5967320893357827,"precision_05":0.6720383275261324,"recall_05":0.53660233002956,"balanced_accuracy_05":0.7582474920195064,"threshold_max_f1":0.35,"f1_max":0.6370872142252328,"precision_max_f1":0.6208945370523189,"recall_max_f1":0.6541471048513302,"threshold_max_balacc":0.03,"balanced_accuracy_max":0.8971455639763976,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":176657,"n_train_pool_after_purge":176657,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":963,"n_test_groups":414,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":111.80339887498948,"nearest_test_to_train_m_median":250.0,"nearest_test_to_train_m_mean":272.6169318915697,"nearest_test_to_train_m_p75":400.0,"nearest_test_to_train_m_p95":570.087712549569,"nearest_test_to_train_m_max":2026.0799589354808,"cenario_pasta":"31_completo","cenario_nome":"Completo 31"},{"scenario":"completo_rho070","area":"Goiânia - Conc. Urbana","area_col":"area_conc_urb_goiania","model_type":"ebm","n_rows_used_model":300000,"n_train":147980,"n_calib":63465,"n_test":88555,"pos_test":739,"prevalence_test":0.0083450962678561,"n_features":5,"roc_auc":0.8965603886610988,"average_precision":0.3583884620281121,"ap_lift_prevalence":42.94599493220497,"brier":0.0079611865739115,"f1_05":0.3878326996197718,"precision_05":0.3647199046483909,"recall_05":0.4140730717185386,"balanced_accuracy_05":0.7040017813726154,"threshold_max_f1":0.67,"f1_max":0.4554794520547945,"precision_max_f1":0.62004662004662,"recall_max_f1":0.3599458728010825,"threshold_max_balacc":0.01,"balanced_accuracy_max":0.7939501809848937,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":211445,"n_train_pool_after_purge":211445,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":1163,"n_test_groups":499,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":111.80339887498948,"nearest_test_to_train_m_median":250.0,"nearest_test_to_train_m_mean":265.2721595946171,"nearest_test_to_train_m_p75":400.0,"nearest_test_to_train_m_p95":550.0,"nearest_test_to_train_m_max":1790.2513789968157,"cenario_pasta":"31_completo","cenario_nome":"Completo 31"},{"scenario":"completo_rho070","area":"Rio de Janeiro - Grande Conc. Urbana","area_col":"area_conc_urb_rio_de_janeiro","model_type":"ebm","n_rows_used_model":300000,"n_train":147325,"n_calib":62899,"n_test":89776,"pos_test":14267,"prevalence_test":0.1589177508465514,"n_features":11,"roc_auc":0.9562713615390532,"average_precision":0.8244964747197624,"ap_lift_prevalence":5.18819622306311,"brier":0.0573214752591778,"f1_05":0.7326082949308755,"precision_05":0.7727484834344377,"recall_05":0.6964323263475153,"balanced_accuracy_05":0.8288674762622636,"threshold_max_f1":0.27,"f1_max":0.7546920433518371,"precision_max_f1":0.7138838532224793,"recall_max_f1":0.8004485876498213,"threshold_max_balacc":0.14,"balanced_accuracy_max":0.8887914508508603,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":210224,"n_train_pool_after_purge":210224,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":2788,"n_test_groups":1195,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":150.0,"nearest_test_to_train_m_median":254.95097567963924,"nearest_test_to_train_m_mean":290.4318736485239,"nearest_test_to_train_m_p75":403.11288741492746,"nearest_test_to_train_m_p95":608.276253029822,"nearest_test_to_train_m_max":2040.8331631958551,"cenario_pasta":"31_completo","cenario_nome":"Completo 31"},{"scenario":"completo_rho070","area":"Rio de Janeiro - Médias Conc. Urbanas","area_col":"area_medias_conc_urb_rj","model_type":"ebm","n_rows_used_model":300000,"n_train":145316,"n_calib":62310,"n_test":92374,"pos_test":5311,"prevalence_test":0.0574945330937276,"n_features":11,"roc_auc":0.9249253986760958,"average_precision":0.4505890802322361,"ap_lift_prevalence":7.837076952998037,"brier":0.0414044387388711,"f1_05":0.4669622123706987,"precision_05":0.5313475858755705,"recall_05":0.4164940689135756,"balanced_accuracy_05":0.6970425044038376,"threshold_max_f1":0.22,"f1_max":0.5157135097384962,"precision_max_f1":0.4386219640971489,"recall_max_f1":0.6256825456599511,"threshold_max_balacc":0.04,"balanced_accuracy_max":0.8626912135489453,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":207626,"n_train_pool_after_purge":207626,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":2265,"n_test_groups":971,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":150.0,"nearest_test_to_train_m_median":250.0,"nearest_test_to_train_m_mean":303.350132677396,"nearest_test_to_train_m_p75":403.11288741492746,"nearest_test_to_train_m_p95":680.0735254367721,"nearest_test_to_train_m_max":14408.764693754978,"cenario_pasta":"31_completo","cenario_nome":"Completo 31"},{"scenario":"completo_rho070","area":"Rio de Janeiro - Arranjos Populacionais","area_col":"area_arranjo_pop_rj","model_type":"ebm","n_rows_used_model":101166,"n_train":49720,"n_calib":21389,"n_test":30057,"pos_test":850,"prevalence_test":0.0282796020893635,"n_features":9,"roc_auc":0.90960172722494,"average_precision":0.6979094281139432,"ap_lift_prevalence":24.67889844802446,"brier":0.0124023059874899,"f1_05":0.7775790101371497,"precision_05":0.788391777509069,"recall_05":0.7670588235294118,"balanced_accuracy_05":0.8805335546071752,"threshold_max_f1":0.97,"f1_max":0.8,"precision_max_f1":0.8358974358974359,"recall_max_f1":0.7670588235294118,"threshold_max_balacc":0.01,"balanced_accuracy_max":0.9004679377828442,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":71109,"n_train_pool_after_purge":71109,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":886,"n_test_groups":381,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":150.0,"nearest_test_to_train_m_median":250.0,"nearest_test_to_train_m_mean":321.94679632695403,"nearest_test_to_train_m_p75":450.0,"nearest_test_to_train_m_p95":820.0609733428363,"nearest_test_to_train_m_max":5434.15126767741,"cenario_pasta":"31_completo","cenario_nome":"Completo 31"},{"scenario":"completo_rho070","area":"São Paulo - Conc. Urbana","area_col":"area_conc_urb_sao_paulo","model_type":"ebm","n_rows_used_model":300000,"n_train":146388,"n_calib":62892,"n_test":90720,"pos_test":16299,"prevalence_test":0.1796626984126984,"n_features":5,"roc_auc":0.974297718023611,"average_precision":0.9007976565409208,"ap_lift_prevalence":5.013826823816942,"brier":0.0439415150731972,"f1_05":0.8358227265756786,"precision_05":0.835643321476757,"recall_05":0.8360022087244616,"balanced_accuracy_05":0.8999954339197482,"threshold_max_f1":0.46,"f1_max":0.8360319549447522,"precision_max_f1":0.8341680918641583,"recall_max_f1":0.8379041658997485,"threshold_max_balacc":0.12,"balanced_accuracy_max":0.9147628564225744,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":209280,"n_train_pool_after_purge":209280,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":3346,"n_test_groups":1435,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":70.71067811865476,"nearest_test_to_train_m_p25":150.0,"nearest_test_to_train_m_median":254.95097567963924,"nearest_test_to_train_m_mean":286.5313986902768,"nearest_test_to_train_m_p75":400.0,"nearest_test_to_train_m_p95":570.087712549569,"nearest_test_to_train_m_max":5591.511423577707,"cenario_pasta":"31_completo","cenario_nome":"Completo 31"},{"scenario":"completo_rho070","area":"Belém - RGInt","area_col":"area_rgint_belem","model_type":"ebm","n_rows_used_model":206709,"n_train":100148,"n_calib":43693,"n_test":62868,"pos_test":17599,"prevalence_test":0.2799357383724629,"n_features":11,"roc_auc":0.9200946742927262,"average_precision":0.7983285067437494,"ap_lift_prevalence":2.851827749415651,"brier":0.0992344866677798,"f1_05":0.765436318067897,"precision_05":0.7673157083309542,"recall_05":0.7635661117108926,"balanced_accuracy_05":0.8367743302374737,"threshold_max_f1":0.24,"f1_max":0.7713471755254986,"precision_max_f1":0.7033795169443925,"recall_max_f1":0.8538553326893573,"threshold_max_balacc":0.24,"balanced_accuracy_max":0.8569349561014659,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":143841,"n_train_pool_after_purge":143841,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":1030,"n_test_groups":442,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":150.0,"nearest_test_to_train_m_median":250.0,"nearest_test_to_train_m_mean":287.745775989346,"nearest_test_to_train_m_p75":400.0,"nearest_test_to_train_m_p95":650.0,"nearest_test_to_train_m_max":1803.4688796871435,"cenario_pasta":"31_completo","cenario_nome":"Completo 31"},{"scenario":"completo_rho070","area":"Macapá - RGInt","area_col":"area_rgint_macapa","model_type":"ebm","n_rows_used_model":60100,"n_train":30622,"n_calib":13334,"n_test":16144,"pos_test":2320,"prevalence_test":0.1437066402378592,"n_features":6,"roc_auc":0.9772512384758142,"average_precision":0.8303070994101389,"ap_lift_prevalence":5.777792160722967,"brier":0.0422133090769328,"f1_05":0.8504098360655737,"precision_05":0.810546875,"recall_05":0.8943965517241379,"balanced_accuracy_05":0.9296563198435503,"threshold_max_f1":0.94,"f1_max":0.859100642398287,"precision_max_f1":0.8536170212765958,"recall_max_f1":0.8646551724137931,"threshold_max_balacc":0.02,"balanced_accuracy_max":0.9549222242177522,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":43956,"n_train_pool_after_purge":43956,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":310,"n_test_groups":133,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":150.0,"nearest_test_to_train_m_median":250.0,"nearest_test_to_train_m_mean":296.95041824003755,"nearest_test_to_train_m_p75":400.0,"nearest_test_to_train_m_p95":632.4555320336759,"nearest_test_to_train_m_max":8348.203399534537,"cenario_pasta":"31_completo","cenario_nome":"Completo 31"},{"scenario":"completo_rho070","area":"Redenção - RGInt","area_col":"area_rgint_redencao","model_type":"ebm","n_rows_used_model":74553,"n_train":38326,"n_calib":16410,"n_test":19817,"pos_test":541,"prevalence_test":0.0272997931069283,"n_features":16,"roc_auc":0.9833011389374852,"average_precision":0.9676365920072546,"ap_lift_prevalence":35.444832428480154,"brier":0.0009083094665583,"f1_05":0.9830827067669172,"precision_05":1.0,"recall_05":0.966728280961183,"balanced_accuracy_05":0.9833641404805916,"threshold_max_f1":0.01,"f1_max":0.9830827067669172,"precision_max_f1":1.0,"recall_max_f1":0.966728280961183,"threshold_max_balacc":0.01,"balanced_accuracy_max":0.9833641404805916,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":54736,"n_train_pool_after_purge":54736,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":396,"n_test_groups":170,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":100.0,"nearest_test_to_train_m_median":206.15528128088303,"nearest_test_to_train_m_mean":263.5686873866039,"nearest_test_to_train_m_p75":353.5533905932738,"nearest_test_to_train_m_p95":602.0797289396148,"nearest_test_to_train_m_max":1570.0318468107582,"cenario_pasta":"31_completo","cenario_nome":"Completo 31"},{"scenario":"morfologico","area":"Curitiba - Conc. Urbana","area_col":"area_conc_urb_curitiba","model_type":"ebm","n_rows_used_model":300000,"n_train":148873,"n_calib":63450,"n_test":87677,"pos_test":5107,"prevalence_test":0.0582478871311746,"n_features":10,"roc_auc":0.8304256241133933,"average_precision":0.3029037707279756,"ap_lift_prevalence":5.200253359333605,"brier":0.0467415596552127,"f1_05":0.0759493670886076,"precision_05":0.769811320754717,"recall_05":0.0399451732915606,"balanced_accuracy_05":0.5196032030924316,"threshold_max_f1":0.15,"f1_max":0.3573253193087903,"precision_max_f1":0.2898939412410093,"recall_max_f1":0.465635402388878,"threshold_max_balacc":0.06,"balanced_accuracy_max":0.7512795534884938,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":212323,"n_train_pool_after_purge":212323,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":1409,"n_test_groups":604,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":150.0,"nearest_test_to_train_m_median":250.0,"nearest_test_to_train_m_mean":286.369542473405,"nearest_test_to_train_m_p75":400.0,"nearest_test_to_train_m_p95":640.3124237432849,"nearest_test_to_train_m_max":2510.975905897944,"cenario_pasta":"31_morfologico","cenario_nome":"Modelo morfológico"},{"scenario":"morfologico","area":"Fortaleza - Conc. Urbana","area_col":"area_conc_urb_fortaleza","model_type":"ebm","n_rows_used_model":257306,"n_train":123701,"n_calib":52956,"n_test":80649,"pos_test":5751,"prevalence_test":0.071309005691329,"n_features":16,"roc_auc":0.8426086591890051,"average_precision":0.3778011004251306,"ap_lift_prevalence":5.298083976384343,"brier":0.0531972347404742,"f1_05":0.2583148558758315,"precision_05":0.6361774744027304,"recall_05":0.1620587723874109,"balanced_accuracy_05":0.577471213745843,"threshold_max_f1":0.17,"f1_max":0.4284647550776583,"precision_max_f1":0.3754744143436723,"recall_max_f1":0.4988697617805599,"threshold_max_balacc":0.06,"balanced_accuracy_max":0.7684879291861972,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":176657,"n_train_pool_after_purge":176657,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":963,"n_test_groups":414,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":111.80339887498948,"nearest_test_to_train_m_median":250.0,"nearest_test_to_train_m_mean":272.6169318915697,"nearest_test_to_train_m_p75":400.0,"nearest_test_to_train_m_p95":570.087712549569,"nearest_test_to_train_m_max":2026.0799589354808,"cenario_pasta":"31_morfologico","cenario_nome":"Modelo morfológico"},{"scenario":"morfologico","area":"Goiânia - Conc. Urbana","area_col":"area_conc_urb_goiania","model_type":"ebm","n_rows_used_model":300000,"n_train":147980,"n_calib":63465,"n_test":88555,"pos_test":739,"prevalence_test":0.0083450962678561,"n_features":16,"roc_auc":0.8494166992418519,"average_precision":0.061545528703233,"ap_lift_prevalence":7.375053172279847,"brier":0.0084119393374161,"f1_05":0.0415647921760391,"precision_05":0.2151898734177215,"recall_05":0.0230040595399188,"balanced_accuracy_05":0.5111490189291104,"threshold_max_f1":0.13,"f1_max":0.1375266524520255,"precision_max_f1":0.1134564643799472,"recall_max_f1":0.1745602165087956,"threshold_max_balacc":0.01,"balanced_accuracy_max":0.7759932565360244,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":211445,"n_train_pool_after_purge":211445,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":1163,"n_test_groups":499,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":111.80339887498948,"nearest_test_to_train_m_median":250.0,"nearest_test_to_train_m_mean":265.2721595946171,"nearest_test_to_train_m_p75":400.0,"nearest_test_to_train_m_p95":550.0,"nearest_test_to_train_m_max":1790.2513789968157,"cenario_pasta":"31_morfologico","cenario_nome":"Modelo morfológico"},{"scenario":"morfologico","area":"Rio de Janeiro - Grande Conc. Urbana","area_col":"area_conc_urb_rio_de_janeiro","model_type":"ebm","n_rows_used_model":300000,"n_train":147325,"n_calib":62899,"n_test":89776,"pos_test":14267,"prevalence_test":0.1589177508465514,"n_features":16,"roc_auc":0.8291663933836945,"average_precision":0.5758862934145754,"ap_lift_prevalence":3.623800930650237,"brier":0.0959809064367976,"f1_05":0.4452770656675212,"precision_05":0.7505401362805385,"recall_05":0.3165346604051307,"balanced_accuracy_05":0.6483281176583653,"threshold_max_f1":0.26,"f1_max":0.5374237406309919,"precision_max_f1":0.5346095158829242,"recall_max_f1":0.5402677507534871,"threshold_max_balacc":0.15,"balanced_accuracy_max":0.7509953868807036,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":210224,"n_train_pool_after_purge":210224,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":2788,"n_test_groups":1195,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":150.0,"nearest_test_to_train_m_median":254.95097567963924,"nearest_test_to_train_m_mean":290.4318736485239,"nearest_test_to_train_m_p75":403.11288741492746,"nearest_test_to_train_m_p95":608.276253029822,"nearest_test_to_train_m_max":2040.8331631958551,"cenario_pasta":"31_morfologico","cenario_nome":"Modelo morfológico"},{"scenario":"morfologico","area":"Rio de Janeiro - Médias Conc. Urbanas","area_col":"area_medias_conc_urb_rj","model_type":"ebm","n_rows_used_model":300000,"n_train":145316,"n_calib":62310,"n_test":92374,"pos_test":5311,"prevalence_test":0.0574945330937276,"n_features":12,"roc_auc":0.7851135195704132,"average_precision":0.2260874940244927,"ap_lift_prevalence":3.932330290532573,"brier":0.0497742482200393,"f1_05":0.1426097906500865,"precision_05":0.4347408829174664,"recall_05":0.0852946714366409,"balanced_accuracy_05":0.5392647277218121,"threshold_max_f1":0.14,"f1_max":0.2891457058690233,"precision_max_f1":0.241422805247225,"recall_max_f1":0.3603841084541517,"threshold_max_balacc":0.05,"balanced_accuracy_max":0.7161207913656855,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":207626,"n_train_pool_after_purge":207626,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":2265,"n_test_groups":971,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":150.0,"nearest_test_to_train_m_median":250.0,"nearest_test_to_train_m_mean":303.350132677396,"nearest_test_to_train_m_p75":403.11288741492746,"nearest_test_to_train_m_p95":680.0735254367721,"nearest_test_to_train_m_max":14408.764693754978,"cenario_pasta":"31_morfologico","cenario_nome":"Modelo morfológico"},{"scenario":"morfologico","area":"Rio de Janeiro - Arranjos Populacionais","area_col":"area_arranjo_pop_rj","model_type":"ebm","n_rows_used_model":101166,"n_train":49720,"n_calib":21389,"n_test":30057,"pos_test":850,"prevalence_test":0.0282796020893635,"n_features":11,"roc_auc":0.7609014156557957,"average_precision":0.1148030410837602,"ap_lift_prevalence":4.059570595123037,"brier":0.0270541226465521,"f1_05":0.0,"precision_05":0.0,"recall_05":0.0,"balanced_accuracy_05":0.5,"threshold_max_f1":0.23,"f1_max":0.2135728542914171,"precision_max_f1":0.1854419410745234,"recall_max_f1":0.2517647058823529,"threshold_max_balacc":0.04,"balanced_accuracy_max":0.7016508331000425,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":71109,"n_train_pool_after_purge":71109,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":886,"n_test_groups":381,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":150.0,"nearest_test_to_train_m_median":250.0,"nearest_test_to_train_m_mean":321.94679632695403,"nearest_test_to_train_m_p75":450.0,"nearest_test_to_train_m_p95":820.0609733428363,"nearest_test_to_train_m_max":5434.15126767741,"cenario_pasta":"31_morfologico","cenario_nome":"Modelo morfológico"},{"scenario":"morfologico","area":"São Paulo - Conc. Urbana","area_col":"area_conc_urb_sao_paulo","model_type":"ebm","n_rows_used_model":300000,"n_train":146388,"n_calib":62892,"n_test":90720,"pos_test":16299,"prevalence_test":0.1796626984126984,"n_features":16,"roc_auc":0.9103967868256004,"average_precision":0.7231806834700174,"ap_lift_prevalence":4.025213301699489,"brier":0.0823917969546164,"f1_05":0.6338452906935971,"precision_05":0.7396677305835174,"recall_05":0.5545125467820111,"balanced_accuracy_05":0.7558846175411782,"threshold_max_f1":0.3,"f1_max":0.6743636110724718,"precision_max_f1":0.6169194747022294,"recall_max_f1":0.7436039020798823,"threshold_max_balacc":0.19,"balanced_accuracy_max":0.8395270386704334,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":209280,"n_train_pool_after_purge":209280,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":3346,"n_test_groups":1435,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":70.71067811865476,"nearest_test_to_train_m_p25":150.0,"nearest_test_to_train_m_median":254.95097567963924,"nearest_test_to_train_m_mean":286.5313986902768,"nearest_test_to_train_m_p75":400.0,"nearest_test_to_train_m_p95":570.087712549569,"nearest_test_to_train_m_max":5591.511423577707,"cenario_pasta":"31_morfologico","cenario_nome":"Modelo morfológico"},{"scenario":"morfologico","area":"Belém - RGInt","area_col":"area_rgint_belem","model_type":"ebm","n_rows_used_model":206709,"n_train":100148,"n_calib":43693,"n_test":62868,"pos_test":17599,"prevalence_test":0.2799357383724629,"n_features":16,"roc_auc":0.799932500271552,"average_precision":0.6367552644254878,"ap_lift_prevalence":2.274647989311981,"brier":0.1492518021986594,"f1_05":0.569805994156846,"precision_05":0.6746735074626866,"recall_05":0.4931530200579578,"balanced_accuracy_05":0.7003528249464721,"threshold_max_f1":0.33,"f1_max":0.6035206676228974,"precision_max_f1":0.5577460715318615,"recall_max_f1":0.6574805386669698,"threshold_max_balacc":0.33,"balanced_accuracy_max":0.7274016049052889,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":143841,"n_train_pool_after_purge":143841,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":1030,"n_test_groups":442,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":150.0,"nearest_test_to_train_m_median":250.0,"nearest_test_to_train_m_mean":287.745775989346,"nearest_test_to_train_m_p75":400.0,"nearest_test_to_train_m_p95":650.0,"nearest_test_to_train_m_max":1803.4688796871435,"cenario_pasta":"31_morfologico","cenario_nome":"Modelo morfológico"},{"scenario":"morfologico","area":"Macapá - RGInt","area_col":"area_rgint_macapa","model_type":"ebm","n_rows_used_model":60100,"n_train":30622,"n_calib":13334,"n_test":16144,"pos_test":2320,"prevalence_test":0.1437066402378592,"n_features":11,"roc_auc":0.8476425930914752,"average_precision":0.5825316088353225,"ap_lift_prevalence":4.05361650561959,"brier":0.0864485486473979,"f1_05":0.5289595079446437,"precision_05":0.6523388116308471,"recall_05":0.4448275862068965,"balanced_accuracy_05":0.7025208532886335,"threshold_max_f1":0.36,"f1_max":0.5534618755477652,"precision_max_f1":0.5628342245989305,"recall_max_f1":0.5443965517241379,"threshold_max_balacc":0.13,"balanced_accuracy_max":0.7802948894476374,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":43956,"n_train_pool_after_purge":43956,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":310,"n_test_groups":133,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":150.0,"nearest_test_to_train_m_median":250.0,"nearest_test_to_train_m_mean":296.95041824003755,"nearest_test_to_train_m_p75":400.0,"nearest_test_to_train_m_p95":632.4555320336759,"nearest_test_to_train_m_max":8348.203399534537,"cenario_pasta":"31_morfologico","cenario_nome":"Modelo morfológico"},{"scenario":"morfologico","area":"Redenção - RGInt","area_col":"area_rgint_redencao","model_type":"ebm","n_rows_used_model":74553,"n_train":38326,"n_calib":16410,"n_test":19817,"pos_test":541,"prevalence_test":0.0272997931069283,"n_features":9,"roc_auc":0.7878155974560035,"average_precision":0.1567816274712078,"ap_lift_prevalence":5.742960280216129,"brier":0.0246543738745793,"f1_05":0.0320284697508896,"precision_05":0.4285714285714285,"recall_05":0.0166358595194085,"balanced_accuracy_05":0.5080066618618001,"threshold_max_f1":0.13,"f1_max":0.2453222453222453,"precision_max_f1":0.2802850356294536,"recall_max_f1":0.2181146025878003,"threshold_max_balacc":0.03,"balanced_accuracy_max":0.7207008303162274,"spatial_purge_buffer_m":0.0,"n_train_pool_before_purge":54736,"n_train_pool_after_purge":54736,"n_purged_by_buffer":0,"pct_purged_by_buffer":0.0,"purge_applied":false,"split_group_block_m":1000.0,"n_train_calib_groups":396,"n_test_groups":170,"n_group_overlap_train_test":0,"nearest_test_to_train_m_min":50.0,"nearest_test_to_train_m_p01":50.0,"nearest_test_to_train_m_p05":50.0,"nearest_test_to_train_m_p25":100.0,"nearest_test_to_train_m_median":206.15528128088303,"nearest_test_to_train_m_mean":263.5686873866039,"nearest_test_to_train_m_p75":353.5533905932738,"nearest_test_to_train_m_p95":602.0797289396148,"nearest_test_to_train_m_max":1570.0318468107582,"cenario_pasta":"31_morfologico","cenario_nome":"Modelo morfológico"}],"summary":[{"cenario_pasta":"31_completo","cenario_nome":"Completo 31","areas":10,"roc_auc_medio":0.9461479145311212,"ap_medio":0.7205551917616965,"lift_medio":15.137304903506784,"f1_medio":0.7311051997193625,"bal_acc_media":0.8967299324875444,"brier_medio":0.0369343614982274,"features_media":9.5},{"cenario_pasta":"31_morfologico","cenario_nome":"Modelo morfológico","areas":10,"roc_auc_medio":0.8243419788798786,"ap_medio":0.3758276412581203,"lift_medio":4.558553040115083,"f1_medio":0.40401274271952864,"bal_acc_media":0.7532452113896734,"brier_medio":0.062390653271174504,"features_media":13.3}],"funnel":[],"diagnostics":[{"label":"Ganho médio do modelo completo","value":"+0.345 AP / +0.122 ROC","hint":"Diferença média entre o cenário completo e o morfológico nas áreas de estudo."},{"label":"Robustez morfológica","value":"50.0% do AP completo","hint":"Quanto do desempenho do modelo completo é recuperado usando apenas variáveis morfológicas/ambientais/espectrais."},{"label":"Calibração das probabilidades","value":"Completo","hint":"Menor Brier médio é melhor. Completo: 0.037; morfológico: 0.062."},{"label":"Estabilidade entre áreas","value":"Completo","hint":"Menor desvio-padrão de AP indica comportamento mais uniforme. Completo: 0.183; morfológico: 0.227."},{"label":"Eficiência por variável","value":"Completo","hint":"AP médio dividido pelo número de variáveis selecionadas. Completo: 0.089; morfológico: 0.028."},{"label":"Área mais dependente de variáveis censitárias","value":"Redenção - RGInt","hint":"Diferença AP completo - morfológico: 0.811."},{"label":"Validação espacial","value":"sem sobreposição","hint":"Confere se os blocos de treino/calibração e teste ficaram separados por grupo espacial."}]}</script>
+
+  <div class="sidebar">
+    <div class="brand"><span>Preditor FCU</span></div>
+    
+<div class="site-lang-toggle" aria-label="Idioma">
+  <button type="button" id="btn-pt" data-lang="pt">PT</button>
+  <button type="button" id="btn-en" data-lang="en">EN</button>
+</div>
+
+    <div class="menu-label">MODELOS / ANÁLISE</div>
+    <div id="nav-container">
+      <button class="btn-nav active" data-tab="geral">Visão geral</button>
+      <button class="btn-nav" data-tab="completo">Completo 31</button>
+      <button class="btn-nav" data-tab="semibge">Modelo morfológico</button>
+      <button class="btn-nav" data-tab="comparativo">Comparativo por área</button>
+      <button class="btn-nav" data-tab="metodologia">Como ler</button>
+    </div>
+    <div class="version">v2.0</div>
+  </div>
+
+  <div class="main">
+    <div class="container">
+      <header>
+        <h1>Análise dos modelos</h1>
+        <p class="subtitle">
+          Leitura didática dos dois cenários, sempre separada por área de estudo. O layout segue o mesmo padrão dos dashboards EBM.
+        </p>
+      </header>
+<nav class="site-nav-links" aria-label="Navegacao principal"><a href="index.html" data-i18n="nav_home">Início</a><a href="07_dashboard_ebm_avancado_areas_estudo_completo.html" data-i18n="nav_full">Modelo completo</a><a href="07_dashboard_ebm_avancado_areas_estudo_morfologico.html" data-i18n="nav_morph">Modelo morfológico</a><a class="active" href="08_dashboard_metricas_modelos_areas_estudo.html" data-i18n="nav_analysis">Análise dos modelos</a><a href="https://cefavela.ufabc.edu.br/revelando-favelas-arcabouco-metodologico-para-identificacao-e-caracterizacao-de-favelas/" data-i18n="nav_more" target="_blank" rel="noopener noreferrer">Saiba mais</a></nav>
+
+      <div class="tab-nav">
+        <button class="tab-btn active" data-tab="geral">Visão geral</button>
+        <button class="tab-btn" data-tab="completo">Completo</button>
+        <button class="tab-btn" data-tab="semibge">Modelo morfológico</button>
+        <button class="tab-btn" data-tab="comparativo">Comparativo</button>
+        <button class="tab-btn" data-tab="metodologia">Como ler</button>
+      </div>
+
+      <div id="geral" class="tab-content active">
+        <div id="summary-cards" class="metric-grid"></div>
+        <div class="diagnostic-section">
+          <h2>Diagnosticos de ciencia de dados</h2>
+          <div id="diagnostic-cards" class="metric-grid"></div>
+        </div>
+        <div class="grid-charts">
+          <div class="card"><h2>Average Precision por área</h2><div id="chart-ap" class="chart-wrapper"></div></div>
+          <div class="card"><h2>ROC AUC por área</h2><div id="chart-roc" class="chart-wrapper"></div></div>
+        </div>
+      </div>
+
+      <div id="completo" class="tab-content">
+        <div id="cards-completo" class="metric-grid"></div>
+        <div class="card"><h2>Tabela de análise - Completo 31</h2><div id="table-completo"></div></div>
+      </div>
+
+      <div id="semibge" class="tab-content">
+        <div id="cards-semibge" class="metric-grid"></div>
+        <div class="card"><h2>Tabela de análise - Modelo morfológico</h2><div id="table-semibge"></div></div>
+      </div>
+
+      <div id="comparativo" class="tab-content">
+        <div class="grid-charts">
+          <div class="card"><h2>Lift AP por área</h2><div id="chart-lift" class="chart-wrapper"></div></div>
+          <div class="card"><h2>Variáveis selecionadas</h2><div id="chart-features" class="chart-wrapper"></div></div>
+        </div>
+        <div class="card"><h2>Comparativo direto</h2><div id="table-comparativo"></div></div>
+      </div>
+
+      <div id="metodologia" class="tab-content">
+        <div class="explain-grid">
+          <div class="card"><h2>ROC AUC</h2><p class="metric-hint">Mede a capacidade geral de separar células com FCU e sem FCU. Acima de 0,80 costuma indicar boa separação; 0,50 equivale a sorteio.</p></div>
+          <div class="card"><h2>Average Precision</h2><p class="metric-hint">E a metrica mais importante para uma fila de candidatos rara/desbalanceada. Quanto maior, melhor a concentracao de casos provaveis no topo.</p></div>
+          <div class="card"><h2>Lift AP</h2><p class="metric-hint">Mostra quantas vezes o AP supera a taxa de FCUs da área. Ajuda a comparar áreas com taxas de FCU diferentes.</p></div>
+          <div class="card"><h2>F1 máximo</h2><p class="metric-hint">Equilíbrio entre precisão e recall no melhor ponto de corte. É útil para escolher um limiar operacional.</p></div>
+          <div class="card"><h2>Balanced accuracy</h2><p class="metric-hint">Media do acerto entre positivos e negativos, reduzindo o efeito do desbalanceamento.</p></div>
+          <div class="card"><h2>Brier</h2><p class="metric-hint">Erro médio das probabilidades. Aqui menor é melhor, porque indica probabilidades mais calibradas.</p></div>
+        </div>
+      </div>
+
+<footer id="saiba-mais" class="site-footer">
+  <span data-i18n-html="footer_text"><strong>Projeto Revelando Favelas</strong>, CEFAVELA/Universidade Federal do ABC - UFABC.
+  Autores: Freitas Junior, Flávia Feitosa, Gabriel Marques e Marcos Medeiros.</span>
+  <div class="site-footer-link"><a href="https://cefavela.ufabc.edu.br/revelando-favelas-arcabouco-metodologico-para-identificacao-e-caracterizacao-de-favelas/" target="_blank" rel="noopener noreferrer" data-i18n="footer_more">Saiba mais sobre o projeto</a></div>
+</footer>
+    </div>
+  </div>
+
+  <script>
+    const DATA = JSON.parse(document.getElementById('metrics-data').textContent);
+    const quality = DATA.quality;
+    const summary = DATA.summary;
+    const diagnostics = DATA.diagnostics || [];
+    const colors = {'31_completo':'#3498db', '31_morfologico':'#2ecc71'};
+    const labels = {'31_completo':'Completo 31', '31_morfologico':'Modelo morfológico'};
+
+    function fmt(x, d=3) {
+      if (x === null || x === undefined || Number.isNaN(Number(x))) return '-';
+      return Number(x).toLocaleString('pt-BR', {maximumFractionDigits:d, minimumFractionDigits:d});
+    }
+    function pct(x) { return fmt(Number(x)*100, 1) + '%'; }
+    function rowsFor(key) { return quality.filter(d => d.cenario_pasta === key); }
+    function average(records, name) {
+      return records.reduce((s,d)=>s+Number(d[name]||0),0) / Math.max(records.length,1);
+    }
+
+    function setTab(tabId) {
+      document.querySelectorAll('.btn-nav, .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
+      document.querySelectorAll('.tab-content').forEach(s => s.classList.toggle('active', s.id === tabId));
+      setTimeout(drawCharts, 50);
+    }
+    document.querySelectorAll('.btn-nav, .tab-btn').forEach(btn => btn.addEventListener('click', () => setTab(btn.dataset.tab)));
+
+    function metricCards(containerId, records) {
+      document.getElementById(containerId).innerHTML = `
+        <div class="metric-card"><div class="metric-label">ROC AUC médio</div><div class="metric-value">${fmt(average(records,'roc_auc'))}</div><div class="metric-hint">Separação geral entre positivos e negativos.</div></div>
+        <div class="metric-card"><div class="metric-label">AP médio</div><div class="metric-value">${fmt(average(records,'average_precision'))}</div><div class="metric-hint">Qualidade da fila de candidatos.</div></div>
+        <div class="metric-card"><div class="metric-label">Lift médio</div><div class="metric-value">${fmt(average(records,'ap_lift_prevalence'),2)}x</div><div class="metric-hint">Ganho sobre a taxa de FCUs.</div></div>
+        <div class="metric-card"><div class="metric-label">F1 médio</div><div class="metric-value">${fmt(average(records,'f1_max'))}</div><div class="metric-hint">Equilíbrio entre precisão e recall.</div></div>`;
+    }
+
+    function table(containerId, records) {
+      const headers = [
+        {label:'Área', cls:''},
+        {label:'Features', cls:'num'},
+        {label:'FCUs (%)', cls:'num'},
+        {label:'ROC AUC', cls:'num'},
+        {label:'AP', cls:'num'},
+        {label:'Lift AP', cls:'num'},
+        {label:'F1 max', cls:'num'},
+        {label:'Bal. acc', cls:'num'},
+        {label:'Brier', cls:'num'}
+      ];
+      const body = records.map(d => `
+        <tr>
+          <td data-label="Área">${d.area}</td>
+          <td class="num" data-label="Features">${d.n_features}</td>
+          <td class="num" data-label="FCUs (%)">${pct(d.prevalence_test)}</td>
+          <td class="num" data-label="ROC AUC">${fmt(d.roc_auc)}</td>
+          <td class="num" data-label="AP">${fmt(d.average_precision)}</td>
+          <td class="num" data-label="Lift AP">${fmt(d.ap_lift_prevalence,2)}x</td>
+          <td class="num" data-label="F1 max">${fmt(d.f1_max)}</td>
+          <td class="num" data-label="Bal. acc">${fmt(d.balanced_accuracy_max)}</td>
+          <td class="num" data-label="Brier">${fmt(d.brier)}</td>
+        </tr>`).join('');
+      document.getElementById(containerId).innerHTML =
+        `<div class="table-wrap"><table class="quality-table"><thead><tr>${headers.map(h=>`<th class="${h.cls}">${h.label}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>` +
+        `<div class="table-note">FCUs (%) = percentual de células positivas/FCU no conjunto de teste da área.</div>`;
+    }
+
+    function summaryCards() {
+      const completo = summary.find(d => d.cenario_pasta === '31_completo');
+      const sem = summary.find(d => d.cenario_pasta === '31_morfologico');
+      document.getElementById('summary-cards').innerHTML = `
+        <div class="metric-card"><div class="metric-label">Melhor AP médio</div><div class="metric-value">${completo.ap_medio >= sem.ap_medio ? 'Completo' : 'Morfológico'}</div><div class="metric-hint">Completo: ${fmt(completo.ap_medio)} | Morfológico: ${fmt(sem.ap_medio)}</div></div>
+        <div class="metric-card"><div class="metric-label">Melhor ROC médio</div><div class="metric-value">${completo.roc_auc_medio >= sem.roc_auc_medio ? 'Completo' : 'Morfológico'}</div><div class="metric-hint">Completo: ${fmt(completo.roc_auc_medio)} | Morfológico: ${fmt(sem.roc_auc_medio)}</div></div>
+        <div class="metric-card"><div class="metric-label">Áreas avaliadas</div><div class="metric-value">${completo.areas}</div><div class="metric-hint">Mesmo conjunto de áreas nos dois cenários.</div></div>
+        <div class="metric-card"><div class="metric-label">Features médias</div><div class="metric-value">${fmt(completo.features_media,1)} / ${fmt(sem.features_media,1)}</div><div class="metric-hint">Completo / Modelo morfológico.</div></div>`;
+    }
+
+    function diagnosticCards() {
+      const el = document.getElementById('diagnostic-cards');
+      if (!el) return;
+      el.innerHTML = diagnostics.map(d => `
+        <div class="metric-card">
+          <div class="metric-label">${d.label}</div>
+          <div class="metric-value" style="font-size:1.15rem;line-height:1.25;">${d.value}</div>
+          <div class="metric-hint">${d.hint}</div>
+        </div>`).join('');
+    }
+
+    function plotLayout(title, ytitle) {
+      return {
+        title,
+        barmode: 'group',
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: {color:'#2c3e50'},
+        margin: {l:55,r:20,t:45,b:115},
+        xaxis: {tickangle:-35, gridcolor:'#e0e0e0'},
+        yaxis: {title:ytitle, gridcolor:'#e0e0e0'},
+        legend: {orientation:'h', y:1.12}
+      };
+    }
+
+    function drawGroupedChart(id, metric, title, ytitle) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const areas = rowsFor('31_completo').map(d => d.area);
+      const traces = Object.keys(labels).map(key => ({
+        type: 'bar',
+        name: labels[key],
+        x: areas,
+        y: areas.map(a => {
+          const row = quality.find(d => d.cenario_pasta === key && d.area === a);
+          return row ? Number(row[metric]) : null;
+        }),
+        marker: {color: colors[key]}
+      }));
+      Plotly.newPlot(id, traces, plotLayout(title, ytitle), {displayModeBar:false, responsive:false});
+    }
+
+    function drawCharts() {
+      drawGroupedChart('chart-ap', 'average_precision', '', 'AP');
+      drawGroupedChart('chart-roc', 'roc_auc', '', 'ROC AUC');
+      drawGroupedChart('chart-lift', 'ap_lift_prevalence', '', 'Lift');
+      drawGroupedChart('chart-features', 'n_features', '', 'Features');
+    }
+
+    function comparisonTable() {
+      const areas = rowsFor('31_completo').map(d => d.area);
+      const body = areas.map(area => {
+        const c = quality.find(d => d.cenario_pasta === '31_completo' && d.area === area);
+        const s = quality.find(d => d.cenario_pasta === '31_morfologico' && d.area === area);
+        return `<tr>
+          <td data-label="Area">${area}</td>
+          <td class="num" data-label="AP completo">${fmt(c.average_precision)}</td>
+          <td class="num" data-label="AP morfológico">${fmt(s.average_precision)}</td>
+          <td class="num" data-label="Dif. AP">${fmt(c.average_precision - s.average_precision)}</td>
+          <td class="num" data-label="ROC completo">${fmt(c.roc_auc)}</td>
+          <td class="num" data-label="ROC morfológico">${fmt(s.roc_auc)}</td>
+          <td class="num" data-label="Dif. ROC">${fmt(c.roc_auc - s.roc_auc)}</td>
+          <td data-label="Leitura"><span class="pill">${c.average_precision >= s.average_precision ? 'Completo melhor' : 'Morfológico melhor'}</span></td>
+        </tr>`;
+      }).join('');
+      document.getElementById('table-comparativo').innerHTML = `<div class="table-wrap"><table class="quality-table">
+        <thead><tr><th>Área</th><th class="num">AP completo</th><th class="num">AP morfológico</th><th class="num">Dif. AP</th><th class="num">ROC completo</th><th class="num">ROC morfológico</th><th class="num">Dif. ROC</th><th>Leitura</th></tr></thead>
+        <tbody>${body}</tbody>
+      </table></div>`;
+    }
+
+    summaryCards();
+    metricCards('cards-completo', rowsFor('31_completo'));
+    metricCards('cards-semibge', rowsFor('31_morfologico'));
+    table('table-completo', rowsFor('31_completo'));
+    table('table-semibge', rowsFor('31_morfologico'));
+    comparisonTable();
+    drawCharts();
+  </script>
+
+<script>
+(function() {
+  const METRICS_DATA = JSON.parse(document.getElementById('metrics-data').textContent);
+  const qRows = METRICS_DATA.quality || [];
+  const sRows = METRICS_DATA.summary || [];
+  const colors = {'31_completo':'#3498db', '31_morfologico':'#2ecc71'};
+  const T = {
+    pt: {
+      menu: 'MODELOS / ANÁLISE',
+      title: 'Análise dos modelos',
+      intro: 'Leitura didática dos dois cenários, sempre separada por área de estudo. O layout segue o mesmo padrão dos dashboards EBM.',
+      overview: 'Visão geral',
+      full: 'Completo 31',
+      fullShort: 'Completo',
+      morph: 'Modelo morfológico',
+      compare: 'Comparativo por área',
+      compareShort: 'Comparativo',
+      how: 'Como ler',
+      fullLabel: 'Completo 31',
+      morphLabel: 'Modelo morfológico',
+      chartAP: 'Average Precision por área',
+      chartROC: 'ROC AUC por área',
+      chartLift: 'Lift AP por área',
+      chartFeatures: 'Variáveis selecionadas',
+      tableFull: 'Tabela de análise - Completo 31',
+      tableMorph: 'Tabela de análise - Modelo morfológico',
+      directCompare: 'Comparativo direto',
+      avgRoc: 'ROC AUC médio',
+      avgAp: 'AP médio',
+      avgLift: 'Lift médio',
+      avgF1: 'F1 médio',
+      rocHint: 'Separação geral entre positivos e negativos.',
+      apHint: 'Qualidade da fila de candidatos.',
+      liftHint: 'Ganho sobre a taxa de FCUs.',
+      f1Hint: 'Equilíbrio entre precisão e recall.',
+      bestAP: 'Melhor AP médio',
+      bestROC: 'Melhor ROC médio',
+      areas: 'Áreas avaliadas',
+      sameAreas: 'Mesmo conjunto de áreas nos dois cenários.',
+      avgFeatures: 'Variáveis médias',
+      fullVsMorph: 'Completo / Modelo morfológico.',
+      area: 'Área',
+      features: 'Variáveis',
+      fcus: 'FCUs (%)',
+      reading: 'Leitura',
+      fullBetter: 'Completo melhor',
+      morphBetter: 'Morfológico melhor',
+      tableNote: 'FCUs (%) = percentual de células positivas/FCU no conjunto de teste da área.',
+      methodRoc: 'Mede a capacidade geral de separar células com FCU e sem FCU. Acima de 0,80 costuma indicar boa separação; 0,50 equivale a sorteio.',
+      methodAp: 'É a métrica mais importante para uma fila de candidatos rara/desbalanceada. Quanto maior, melhor a concentração de casos prováveis no topo.',
+      methodLift: 'Mostra quantas vezes o AP supera a taxa de FCUs da área. Ajuda a comparar áreas com taxas de FCU diferentes.',
+      methodF1: 'Equilíbrio entre precisão e recall no melhor ponto de corte. É útil para escolher um limiar operacional.',
+      methodBal: 'Média do acerto entre positivos e negativos, reduzindo o efeito do desbalanceamento.',
+      methodBrier: 'Erro médio das probabilidades. Aqui menor é melhor, porque indica probabilidades mais calibradas.'
+    },
+    en: {
+      menu: 'MODELS / ANALYSIS',
+      title: 'Model analysis',
+      intro: 'Accessible reading of the two scenarios, always separated by study area. The layout follows the same pattern as the EBM dashboards.',
+      overview: 'Overview',
+      full: 'Full model',
+      fullShort: 'Full',
+      morph: 'Morphological model',
+      compare: 'Area comparison',
+      compareShort: 'Comparison',
+      how: 'How to read',
+      fullLabel: 'Full model',
+      morphLabel: 'Morphological model',
+      chartAP: 'Average Precision by area',
+      chartROC: 'ROC AUC by area',
+      chartLift: 'AP lift by area',
+      chartFeatures: 'Selected variables',
+      tableFull: 'Analysis table - Full model',
+      tableMorph: 'Analysis table - Morphological model',
+      directCompare: 'Direct comparison',
+      avgRoc: 'Mean ROC AUC',
+      avgAp: 'Mean AP',
+      avgLift: 'Mean lift',
+      avgF1: 'Mean F1',
+      rocHint: 'Overall separation between positive and negative cells.',
+      apHint: 'Quality of the candidate ranking.',
+      liftHint: 'Gain over the FCU rate.',
+      f1Hint: 'Balance between precision and recall.',
+      bestAP: 'Best mean AP',
+      bestROC: 'Best mean ROC',
+      areas: 'Study areas',
+      sameAreas: 'Same set of areas in both scenarios.',
+      avgFeatures: 'Mean variables',
+      fullVsMorph: 'Full model / Morphological model.',
+      area: 'Area',
+      features: 'Variables',
+      fcus: 'FCUs (%)',
+      reading: 'Reading',
+      fullBetter: 'Full model better',
+      morphBetter: 'Morphological model better',
+      tableNote: 'FCUs (%) = share of positive/FCU cells in the area test set.',
+      methodRoc: 'Measures the overall ability to separate FCU and non-FCU cells. Values above 0.80 usually indicate good separation; 0.50 is equivalent to random sorting.',
+      methodAp: 'The most important metric for a rare or imbalanced candidate list. Higher values mean likely cases are better concentrated at the top.',
+      methodLift: 'Shows how many times AP exceeds the area FCU rate. It helps compare areas with different FCU rates.',
+      methodF1: 'Balance between precision and recall at the best threshold. Useful for choosing an operational cutoff.',
+      methodBal: 'Average accuracy across positives and negatives, reducing the effect of imbalance.',
+      methodBrier: 'Mean probability error. Lower is better because it indicates better calibrated probabilities.'
+    }
+  };
+  function lang() { return window.rfSafeStorage.getItem('revelando_lang') === 'en' ? 'en' : 'pt'; }
+  function tx(key) { return (T[lang()] && T[lang()][key]) || T.pt[key] || key; }
+  function fmt(x, d=3) {
+    if (x === null || x === undefined || Number.isNaN(Number(x))) return '-';
+    return Number(x).toLocaleString(lang() === 'en' ? 'en-US' : 'pt-BR', {maximumFractionDigits:d, minimumFractionDigits:d});
+  }
+  function pct(x) { return fmt(Number(x) * 100, 1) + '%'; }
+  function rowsFor(key) { return qRows.filter(d => d.cenario_pasta === key); }
+  function average(records, name) {
+    return records.reduce((s,d)=>s+Number(d[name]||0),0) / Math.max(records.length,1);
+  }
+  function scenarioLabel(key) {
+    return key === '31_completo' ? tx('fullLabel') : tx('morphLabel');
+  }
+  function setText(selector, value) {
+    const el = document.querySelector(selector);
+    if (el) el.textContent = value;
+  }
+  function setStaticText() {
+    setText('.menu-label', tx('menu'));
+    setText('header h1', tx('title'));
+    setText('header .subtitle', tx('intro'));
+    document.querySelectorAll('.btn-nav, .tab-btn').forEach(btn => {
+      const tab = btn.dataset.tab;
+      if (tab === 'geral') btn.textContent = tx('overview');
+      if (tab === 'completo') btn.textContent = btn.classList.contains('tab-btn') ? tx('fullShort') : tx('full');
+      if (tab === 'semibge') btn.textContent = tx('morph');
+      if (tab === 'comparativo') btn.textContent = btn.classList.contains('tab-btn') ? tx('compareShort') : tx('compare');
+      if (tab === 'metodologia') btn.textContent = tx('how');
+    });
+    setText('#geral .grid-charts .card:nth-child(1) h2', tx('chartAP'));
+    setText('#geral .grid-charts .card:nth-child(2) h2', tx('chartROC'));
+    setText('#completo .card h2', tx('tableFull'));
+    setText('#semibge .card h2', tx('tableMorph'));
+    setText('#comparativo .grid-charts .card:nth-child(1) h2', tx('chartLift'));
+    setText('#comparativo .grid-charts .card:nth-child(2) h2', tx('chartFeatures'));
+    setText('#comparativo > .card h2', tx('directCompare'));
+    const method = document.querySelectorAll('#metodologia .metric-hint');
+    const keys = ['methodRoc','methodAp','methodLift','methodF1','methodBal','methodBrier'];
+    method.forEach((el, i) => el.textContent = tx(keys[i]));
+  }
+  function metricCards(containerId, records) {
+    document.getElementById(containerId).innerHTML = `
+      <div class="metric-card"><div class="metric-label">${tx('avgRoc')}</div><div class="metric-value">${fmt(average(records,'roc_auc'))}</div><div class="metric-hint">${tx('rocHint')}</div></div>
+      <div class="metric-card"><div class="metric-label">${tx('avgAp')}</div><div class="metric-value">${fmt(average(records,'average_precision'))}</div><div class="metric-hint">${tx('apHint')}</div></div>
+      <div class="metric-card"><div class="metric-label">${tx('avgLift')}</div><div class="metric-value">${fmt(average(records,'ap_lift_prevalence'),2)}x</div><div class="metric-hint">${tx('liftHint')}</div></div>
+      <div class="metric-card"><div class="metric-label">${tx('avgF1')}</div><div class="metric-value">${fmt(average(records,'f1_max'))}</div><div class="metric-hint">${tx('f1Hint')}</div></div>`;
+  }
+  function table(containerId, records) {
+    const headers = [
+      {label:tx('area'), cls:''},
+      {label:tx('features'), cls:'num'},
+      {label:tx('fcus'), cls:'num'},
+      {label:'ROC AUC', cls:'num'},
+      {label:'AP', cls:'num'},
+      {label:'Lift AP', cls:'num'},
+      {label:'F1 max', cls:'num'},
+      {label:'Bal. acc', cls:'num'},
+      {label:'Brier', cls:'num'}
+    ];
+    const body = records.map(d => `
+      <tr>
+        <td data-label="${tx('area')}">${d.area}</td>
+        <td class="num" data-label="${tx('features')}">${d.n_features}</td>
+        <td class="num" data-label="${tx('fcus')}">${pct(d.prevalence_test)}</td>
+        <td class="num" data-label="ROC AUC">${fmt(d.roc_auc)}</td>
+        <td class="num" data-label="AP">${fmt(d.average_precision)}</td>
+        <td class="num" data-label="Lift AP">${fmt(d.ap_lift_prevalence,2)}x</td>
+        <td class="num" data-label="F1 max">${fmt(d.f1_max)}</td>
+        <td class="num" data-label="Bal. acc">${fmt(d.balanced_accuracy_max)}</td>
+        <td class="num" data-label="Brier">${fmt(d.brier)}</td>
+      </tr>`).join('');
+    document.getElementById(containerId).innerHTML =
+      `<div class="table-wrap"><table class="quality-table"><thead><tr>${headers.map(h=>`<th class="${h.cls}">${h.label}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>` +
+      `<div class="table-note">${tx('tableNote')}</div>`;
+  }
+  function summaryCards() {
+    const completo = sRows.find(d => d.cenario_pasta === '31_completo');
+    const sem = sRows.find(d => d.cenario_pasta === '31_morfologico');
+    if (!completo || !sem) return;
+    document.getElementById('summary-cards').innerHTML = `
+      <div class="metric-card"><div class="metric-label">${tx('bestAP')}</div><div class="metric-value">${completo.ap_medio >= sem.ap_medio ? tx('fullShort') : tx('morph')}</div><div class="metric-hint">${tx('fullShort')}: ${fmt(completo.ap_medio)} | ${tx('morph')}: ${fmt(sem.ap_medio)}</div></div>
+      <div class="metric-card"><div class="metric-label">${tx('bestROC')}</div><div class="metric-value">${completo.roc_auc_medio >= sem.roc_auc_medio ? tx('fullShort') : tx('morph')}</div><div class="metric-hint">${tx('fullShort')}: ${fmt(completo.roc_auc_medio)} | ${tx('morph')}: ${fmt(sem.roc_auc_medio)}</div></div>
+      <div class="metric-card"><div class="metric-label">${tx('areas')}</div><div class="metric-value">${completo.areas}</div><div class="metric-hint">${tx('sameAreas')}</div></div>
+      <div class="metric-card"><div class="metric-label">${tx('avgFeatures')}</div><div class="metric-value">${fmt(completo.features_media,1)} / ${fmt(sem.features_media,1)}</div><div class="metric-hint">${tx('fullVsMorph')}</div></div>`;
+  }
+  function plotLayout(ytitle) {
+    return {
+      barmode: 'group',
+      paper_bgcolor: 'rgba(0,0,0,0)',
+      plot_bgcolor: 'rgba(0,0,0,0)',
+      font: {color:'#2c3e50'},
+      margin: {l:55,r:20,t:45,b:115},
+      xaxis: {tickangle:-35, gridcolor:'#e0e0e0'},
+      yaxis: {title:ytitle, gridcolor:'#e0e0e0'},
+      legend: {orientation:'h', y:1.12}
+    };
+  }
+  function drawGroupedChart(id, metric, ytitle) {
+    const el = document.getElementById(id);
+    if (!el || typeof Plotly === 'undefined') return;
+    const areas = rowsFor('31_completo').map(d => d.area);
+    const traces = ['31_completo','31_morfologico'].map(key => ({
+      type: 'bar',
+      name: scenarioLabel(key),
+      x: areas,
+      y: areas.map(a => {
+        const row = qRows.find(d => d.cenario_pasta === key && d.area === a);
+        return row ? Number(row[metric]) : null;
+      }),
+      marker: {color: colors[key]}
+    }));
+    Plotly.newPlot(id, traces, plotLayout(ytitle), {displayModeBar:false, responsive:false});
+  }
+  function drawCharts() {
+    drawGroupedChart('chart-ap', 'average_precision', 'AP');
+    drawGroupedChart('chart-roc', 'roc_auc', 'ROC AUC');
+    drawGroupedChart('chart-lift', 'ap_lift_prevalence', 'Lift');
+    drawGroupedChart('chart-features', 'n_features', tx('features'));
+  }
+  function comparisonTable() {
+    const areas = rowsFor('31_completo').map(d => d.area);
+    const body = areas.map(area => {
+      const c = qRows.find(d => d.cenario_pasta === '31_completo' && d.area === area);
+      const s = qRows.find(d => d.cenario_pasta === '31_morfologico' && d.area === area);
+      return `<tr>
+        <td data-label="${tx('area')}">${area}</td>
+        <td class="num" data-label="AP ${tx('fullShort')}">${fmt(c.average_precision)}</td>
+        <td class="num" data-label="AP ${tx('morph')}">${fmt(s.average_precision)}</td>
+        <td class="num" data-label="Dif. AP">${fmt(c.average_precision - s.average_precision)}</td>
+        <td class="num" data-label="ROC ${tx('fullShort')}">${fmt(c.roc_auc)}</td>
+        <td class="num" data-label="ROC ${tx('morph')}">${fmt(s.roc_auc)}</td>
+        <td class="num" data-label="Dif. ROC">${fmt(c.roc_auc - s.roc_auc)}</td>
+        <td data-label="${tx('reading')}"><span class="pill">${c.average_precision >= s.average_precision ? tx('fullBetter') : tx('morphBetter')}</span></td>
+      </tr>`;
+    }).join('');
+    document.getElementById('table-comparativo').innerHTML = `<div class="table-wrap"><table class="quality-table">
+      <thead><tr><th>${tx('area')}</th><th class="num">AP ${tx('fullShort')}</th><th class="num">AP ${tx('morph')}</th><th class="num">Dif. AP</th><th class="num">ROC ${tx('fullShort')}</th><th class="num">ROC ${tx('morph')}</th><th class="num">Dif. ROC</th><th>${tx('reading')}</th></tr></thead>
+      <tbody>${body}</tbody>
+    </table></div>`;
+  }
+  window.renderMetricsLanguage = function() {
+    setStaticText();
+    summaryCards();
+    diagnosticCards();
+    metricCards('cards-completo', rowsFor('31_completo'));
+    metricCards('cards-semibge', rowsFor('31_morfologico'));
+    table('table-completo', rowsFor('31_completo'));
+    table('table-semibge', rowsFor('31_morfologico'));
+    comparisonTable();
+    drawCharts();
+  };
+  window.onRevelandoLanguageChange = window.renderMetricsLanguage;
+  document.addEventListener('DOMContentLoaded', () => setTimeout(window.renderMetricsLanguage, 80));
+})();
+</script>
+
+<script>
+(function() {
+  const RF_TEXTS = {"pt": {"nav_home": "Início", "nav_full": "Modelo completo", "nav_morph": "Modelo morfológico", "nav_analysis": "Análise dos modelos", "nav_more": "Saiba mais", "footer_text": "<strong>Projeto Revelando Favelas</strong>, CEFAVELA/Universidade Federal do ABC - UFABC. Autores: Freitas Junior, Flávia Feitosa, Gabriel Marques e Marcos Medeiros.", "footer_more": "Saiba mais sobre o projeto", "home_title": "Preditor FCU", "home_kicker": "Projeto Revelando Favelas", "home_intro": "Plataforma de apoio à leitura territorial que organiza mapas, indicadores e resultados de modelos explicáveis para identificar áreas com maior semelhança ao padrão espacial de favelas e comunidades urbanas.", "home_full_title": "Modelo completo", "home_full_desc": "Combina informações censitárias, morfológicas, ambientais e espectrais para apontar áreas candidatas e explicar quais variáveis influenciaram cada resultado.", "home_morph_title": "Modelo morfológico", "home_morph_desc": "Usa características da forma urbana, ocupação, infraestrutura observável e imagens de satélite, sem utilizar variáveis censitárias do IBGE.", "home_analysis_title": "Análise dos modelos", "home_analysis_desc": "Apresenta, de forma didática, como cada modelo se comporta nas áreas de estudo e quais métricas ajudam a interpretar seus limites e potencialidades.", "home_how_title": "Como ler os resultados", "home_how_desc": "As cores e rankings indicam prioridade de investigação, não uma classificação definitiva. Cada ponto pode ser aberto no mapa para ver a probabilidade estimada, a posição no ranking e a explicação local das variáveis que contribuíram para aquele resultado."}, "en": {"nav_home": "Home", "nav_full": "Full model", "nav_morph": "Morphological model", "nav_analysis": "Model analysis", "nav_more": "Learn more", "footer_text": "<strong>Revealing Favelas Project</strong>, CEFAVELA/Federal University of ABC - UFABC. Authors: Freitas Junior, Flávia Feitosa, Gabriel Marques, and Marcos Medeiros.", "footer_more": "Learn more about the project", "home_title": "FCU Predictor", "home_kicker": "Revealing Favelas Project", "home_intro": "A territorial analysis platform that organizes maps, indicators, and explainable model outputs to identify areas that are spatially similar to favelas and urban communities.", "home_full_title": "Full model", "home_full_desc": "Combines census, morphological, environmental, and spectral information to rank candidate areas and explain which variables influenced each result.", "home_morph_title": "Morphological model", "home_morph_desc": "Uses urban form, occupation, observable infrastructure, and satellite-image indicators, without IBGE census variables.", "home_analysis_title": "Model analysis", "home_analysis_desc": "Shows, in an accessible way, how each model performs across study areas and which metrics help interpret its strengths and limits.", "home_how_title": "How to read the results", "home_how_desc": "Colors and rankings indicate investigation priority, not a definitive classification. Each point can be opened on the map to view its estimated probability, ranking position, and local explanation of contributing variables."}};
+  function rfLang() {
+    const saved = window.rfSafeStorage.getItem('revelando_lang');
+    return saved === 'en' ? 'en' : 'pt';
+  }
+  window.rfText = function(key) {
+    const lang = rfLang();
+    return (RF_TEXTS[lang] && RF_TEXTS[lang][key]) || (RF_TEXTS.pt && RF_TEXTS.pt[key]) || key;
+  };
+  window.rfSetLang = function(lang) {
+    lang = lang === 'en' ? 'en' : 'pt';
+    window.rfSafeStorage.setItem('revelando_lang', lang);
+    document.documentElement.lang = lang === 'en' ? 'en' : 'pt-BR';
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      el.textContent = window.rfText(el.dataset.i18n);
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      el.innerHTML = window.rfText(el.dataset.i18nHtml);
+    });
+    document.querySelectorAll('[data-lang]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+    if (typeof window.onRevelandoLanguageChange === 'function') {
+      window.onRevelandoLanguageChange(lang);
+    }
+  };
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-lang]').forEach(btn => {
+      btn.addEventListener('click', () => window.rfSetLang(btn.dataset.lang));
+    });
+    window.rfSetLang(rfLang());
+  });
+})();
+</script>
+
+</body>
+</html>
