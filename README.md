@@ -3,6 +3,13 @@
 Site estatico do Projeto Revelando Favelas para publicacao dos dashboards
 da Base 31 completa, com dez areas de estudo.
 
+## Site publicado
+
+- Pagina inicial: https://preditor-v6.vercel.app
+- Modelo completo: https://preditor-v6.vercel.app/07_dashboard_ebm_avancado_areas_estudo_completo
+- Modelo morfologico: https://preditor-v6.vercel.app/07_dashboard_ebm_avancado_areas_estudo_morfologico
+- Analise dos modelos: https://preditor-v6.vercel.app/08_dashboard_metricas_modelos_areas_estudo
+
 ## Arquivos principais
 
 - `index.html`: pagina inicial.
